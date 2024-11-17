@@ -38,7 +38,7 @@ class Recorder final : public SubComponent {
     //
     // Subcomponents
     //
-    
+
     // Custom audio port for synthesizing the audio track
     AudioPort audioPort = AudioPort(amiga, 1);
 
@@ -46,7 +46,7 @@ class Recorder final : public SubComponent {
     //
     // Handles
     //
-    
+
     // FFmpeg instances
     FFmpeg videoFFmpeg;
     FFmpeg audioFFmpeg;
@@ -55,25 +55,25 @@ class Recorder final : public SubComponent {
     NamedPipe videoPipe;
     NamedPipe audioPipe;
 
-    
+
     //
     // Recording status
     //
-    
+
     // All possible recorder states
     enum class State { wait, prepare, record, finalize, abort };
 
     // The current recorder state
     State state = State::wait;
-    
+
     // Audio has been recorded up to this cycle
     Cycle audioClock = 0;
 
-    
+
     //
     // Recording parameters
     //
-    
+
     // Frame rate, Bit rate, Sample rate
     isize frameRate = 0;
     isize bitRate = 0;
@@ -93,15 +93,15 @@ class Recorder final : public SubComponent {
     Buffer<u32> videoData;
     Buffer<float> audioData;
 
-    
+
     //
     // Initializing
     //
-    
+
 public:
-    
+
     Recorder(Amiga& ref);
-    
+
     Recorder& operator= (const Recorder& other) {
 
         CLONE(audioPort)
@@ -154,7 +154,7 @@ public:
     //
     // Querying locations and flags
     //
-    
+
     // Returns the paths to the two named input pipes
     string videoPipePath();
     string audioPipePath();
@@ -164,25 +164,26 @@ public:
     string audioStreamPath();
 
     //Returns the log level passed to FFmpeg
-    const string loglevel() { return REC_DEBUG ? "verbose" : "warning"; }
+    // tried setting REC_DEBUG, causes big issues elsewhere...  so bodge it:
+    const string loglevel() { return /*REC_DEBUG ? "verbose" : */"warning"; }
 
-    
+
     //
     // Querying recording parameters
     //
 
 public:
-    
+
     util::Time getDuration() const;
     isize getFrameRate() const { return frameRate; }
     isize getBitRate() const { return bitRate; }
     isize getSampleRate() const { return sampleRate; }
 
-    
+
     //
     // Starting and stopping a video capture
     //
-    
+
 public:
 
     // Checks whether the screen is currently recorded
@@ -192,25 +193,25 @@ public:
     void startRecording(isize x1, isize y1, isize x2, isize y2,
                         isize bitRate,
                         isize aspectX, isize aspectY) throws;
-    
+
     // Stops the screen recorder
     void stopRecording();
 
     // Exports the recorded video
     bool exportAs(const std::filesystem::path &path);
 
-    
+
     //
     // Recording a video stream
     //
-   
+
 public:
 
     // Records a single frame
     void vsyncHandler(Cycle target);
-    
+
 private:
-    
+
     void prepare();
     void record(Cycle target);
     void recordVideo(Cycle target);
