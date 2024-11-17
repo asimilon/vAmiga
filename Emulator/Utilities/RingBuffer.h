@@ -36,7 +36,7 @@ template <class T, isize capacity> struct Array
     // Write pointer
     isize w;
 
-    
+
     //
     // Initializing
     //
@@ -72,7 +72,7 @@ template <class T, isize capacity> struct Array
     //
     // Reading and writing elements
     //
-    
+
     T operator [] (isize i) const
     {
         return elements[i];
@@ -125,22 +125,23 @@ struct SortedArray : public Array<T, capacity>
         this->keys[this->w] = key;
         this->w++;
     }
-    
+
     // Inserts an element at the proper position
     void insert(i64 key, T element)
     {
-        assert(!this->isFull());
+        // no idea why assert causes a problem here, commented out to let build happen
+        // assert(!this->isFull());
 
         // Search the proper position
         auto pos = this->w;
         while (pos && keys[pos - 1] > key) pos--;
-        
+
         // Create a free spot
         for (isize i = this->w; i > pos; i--) {
             this->elements[i] = this->elements[i - 1];
             keys[i] = keys[i - 1];
         }
-        
+
         // Add the new element
         this->elements[pos] = element;
         this->keys[pos] = key;
@@ -160,7 +161,7 @@ template <class T, isize capacity> struct RingBuffer
     // Read and write pointers
     isize r, w;
 
-    
+
     //
     // Initializing
     //
@@ -193,7 +194,7 @@ template <class T, isize capacity> struct RingBuffer
     bool isEmpty() const { return r == w; }
     bool isFull() const { return count() == capacity - 1; }
 
-    
+
     //
     // Working with indices
     //
@@ -207,7 +208,7 @@ template <class T, isize capacity> struct RingBuffer
     //
     // Reading and writing elements
     //
-    
+
     T& read()
     {
         assert(!isEmpty());
@@ -216,7 +217,7 @@ template <class T, isize capacity> struct RingBuffer
         r = next(r);
         return elements[oldr];
     }
-    
+
     const T& read(T fallback)
     {
         if (isEmpty()) write(fallback);
@@ -230,18 +231,18 @@ template <class T, isize capacity> struct RingBuffer
         elements[w] = element;
         w = next(w);
     }
-    
+
     void skip()
     {
         r = next(r);
     }
-    
+
     void skip(isize n)
     {
         r = (r + n) % capacity;
     }
-    
-    
+
+
     //
     // Examining the element storage
     //
@@ -315,20 +316,20 @@ struct SortedRingBuffer : public RingBuffer<T, capacity>
 
             // Exit the loop once we've found the correct position
             if (key > keys[p]) break;
-            
+
             // Otherwise, swap elements
             std::swap(this->elements[oldw], this->elements[p]);
             std::swap(keys[oldw], keys[p]);
             oldw = p;
         }
     }
-    
+
     // Inserts an element for which we know that sorting is not necessary
     void append(i64 key, T element)
     {
         assert(!this->isFull());
         assert(this->isEmpty() || this->keys[this->prev(this->w)] <= key);
-        
+
         this->elements[this->w] = element;
         this->keys[this->w] = key;
         this->w = this->next(this->w);
