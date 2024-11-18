@@ -262,7 +262,6 @@ Emulator::missingFrames() const
 
     // Compute the number of missing frames
     return isize(target - frameCounter);
-
 }
 
 const FrameBuffer &
