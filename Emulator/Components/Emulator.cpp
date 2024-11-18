@@ -37,7 +37,8 @@ Emulator::Emulator()
 
 Emulator::~Emulator()
 {
-    halt();
+    if(isLaunched())
+        halt();
 }
 
 void
