@@ -1656,7 +1656,8 @@ VAmiga::VAmiga() {
 
 VAmiga::~VAmiga()
 {
-    emu->halt();
+    if(emu->isLaunched())
+        emu->halt();
     delete emu;
 }
 
