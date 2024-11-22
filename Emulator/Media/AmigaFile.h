@@ -63,21 +63,21 @@ using util::Buffer;
 class AmigaFile : public CoreObject, public MediaFile {
 
 public:
-    
+
     // Physical location of this file
     std::filesystem::path path;
 
     // The raw data of this file
     Buffer<u8> data;
-    
-    
+
+
     //
     // Initializing
     //
-    
+
 public:
 
-    virtual ~AmigaFile();
+    virtual ~AmigaFile() override;
 
     // void init(std::istream &stream) throws;
     // void init(const std::filesystem::path &path, std::istream &stream) throws;
@@ -87,17 +87,17 @@ public:
     void init(const string &str) throws;
     void init(const std::filesystem::path &path) throws;
     // void init(FILE *file) throws;
-    
+
     explicit operator bool() const { return data.ptr != nullptr; }
 
-    
+
     //
     // Methods from CoreObject
     //
-    
+
     /*
 private:
-    
+
     void _dump(Category category, std::ostream& os) const override { }
      */
 
@@ -105,7 +105,7 @@ private:
     //
     // Methods from MediaFile
     //
-    
+
 public:
 
     virtual isize getSize() const override { return data.size; }
@@ -113,7 +113,7 @@ public:
     virtual u64 fnv64() const override { return data.fnv64(); }
     virtual u32 crc32() const override { return data.crc32(); }
 
-    
+
     //
     // Flashing
     //
@@ -122,13 +122,13 @@ public:
     virtual void flash(u8 *buf, isize offset, isize len) const override;
     virtual void flash(u8 *buf, isize offset = 0) const override;
 
-    
+
     //
     // Serializing
     //
-    
+
 protected:
-    
+
     virtual bool isCompatiblePath(const std::filesystem::path &path) const = 0;
     virtual bool isCompatibleBuffer(const u8 *buf, isize len) = 0;
     bool isCompatibleBuffer(const Buffer<u8> &buffer);
@@ -139,7 +139,7 @@ protected:
     isize readFromBuffer(const Buffer<u8> &buffer) throws;
 
 public:
-    
+
     isize writeToStream(std::ostream &stream, isize offset, isize len) throws;
     isize writeToFile(const std::filesystem::path &path, isize offset, isize len) throws;
     isize writeToBuffer(u8 *buf, isize offset, isize len) throws;
@@ -152,10 +152,10 @@ public:
     isize writeToBuffer(Buffer<u8> &buffer) throws;
 
 private:
-    
+
     // Delegation methods
-    virtual void finalizeRead() throws { };
-    virtual void finalizeWrite() throws { };
+    virtual void finalizeRead() throws { }
+    virtual void finalizeWrite() throws { }
 };
 
 }

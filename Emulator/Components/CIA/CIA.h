@@ -149,16 +149,16 @@ protected:
     //
 
 public:
-    
+
     TOD tod = TOD(*this, amiga);
 
 
     //
     // Internals
     //
-    
+
 protected:
-    
+
     // The CIA has been executed up to this master clock cycle
     Cycle clock;
 
@@ -169,13 +169,13 @@ protected:
     u64 delay;
     u64 feed;
 
-    
+
     //
     // Timers
     //
-    
+
 protected:
-    
+
     // Timer counters
     u16 counterA;
     u16 counterB;
@@ -188,49 +188,49 @@ protected:
     u8 cra;
     u8 crb;
 
-    
+
     //
     // Interrupts
     //
-    
+
     // Interrupt mask register
     u8 imr;
 
     // Interrupt control register
     u8 icr;
-    
+
     // ICR bits that need to deleted when CIAAckIcr1 hits
     u8 icrAck;
 
-    
+
     //
     // Peripheral ports
     //
-    
+
 protected:
-    
+
     // Data registers
     u8 pra;
     u8 prb;
-    
+
     // Data directon registers
     u8 ddra;
     u8 ddrb;
-    
+
     // Bit mask for PB outputs (0 = port register, 1 = timer)
     u8 pb67TimerMode;
-    
+
     // PB output bits 6 and 7 in timer mode
     u8 pb67TimerOut;
-    
+
     // PB output bits 6 and 7 in toggle mode
     u8 pb67Toggle;
 
-    
+
     //
     // Port values (chip pins)
     //
-    
+
     // Peripheral port pins
     u8 pa;
     u8 pb;
@@ -238,17 +238,17 @@ protected:
     // Serial port pins
     bool sp;
     bool cnt;
-    
+
     // Interrupt request pin
     bool irq;
-    
-    
+
+
     //
     // Shift register
     //
-    
+
 protected:
-    
+
     /* Serial data register
      * http://unusedino.de/ec64/technical/misc/cia6526/serial.html
      * "The serial port is a buffered, 8-bit synchronous shift register system.
@@ -279,48 +279,48 @@ protected:
 
     // Serial shift register
     u8 ssr;
-    
+
     /* Shift register counter
      * The counter is set to 8 when the shift register is loaded and decremented
      * when a bit is shifted out.
      */
     i8 serCounter;
-    
-    
+
+
     //
     // Sleep logic
     //
 
 public:
-    
+
     // Indicates if the CIA is currently idle
     bool sleeping;
-    
+
     /* The last executed cycle before the chip went idle.
      * The variable is set in sleep()
      */
     Cycle sleepCycle;
-    
+
     /* The first cycle to be executed after the chip went idle.
      * The variable is set in sleep()
      */
     Cycle wakeUpCycle;
 
 protected:
-    
+
     /* Idle counter. When the CIA's state does not change during execution,
      * this variable is increased by one. If it exceeds a certain threshhold,
      * the chip is put into idle state via sleep().
      */
     u8 tiredness;
-    
-    
+
+
     //
     // Initializing
     //
 
 public:
-    
+
     CIA(Amiga& ref, isize objid);
 
     bool isCIAA() const { return objid == 0; }
@@ -435,7 +435,7 @@ public:
     void operator << (SerReader &worker) override { serialize(worker); }
     void operator << (SerWriter &worker) override { serialize(worker); }
 
-    
+
     //
     // Methods from CoreComponent
     //
@@ -475,38 +475,38 @@ public:
     void checkOption(Option opt, i64 value) override;
     void setOption(Option option, i64 value) override;
 
-    
+
     //
     // Analyzing
     //
-    
+
 public:
-    
+
     Cycle getClock() const { return clock; }
 
-    
+
     //
     // Accessing registers
     //
-    
+
 public:
-    
+
     // Reads a value from a CIA register
     u8 peek(u16 addr);
-    
+
     // Reads a value from a CIA register without causing side effects
     u8 spypeek(u16 addr) const;
 
     // Writes a value into a CIA register
     void poke(u16 addr, u8 value);
-    
-    
+
+
     //
     // Accessing the data ports
     //
-    
+
 public:
-    
+
     // Returns the data registers (call updatePA() or updatePB() first)
     u8 getPA() const { return pa; }
     u8 getPB() const { return pb; }
@@ -523,22 +523,22 @@ private:
 
     // Returns the value driving port A from inside the chip
     virtual u8 portAinternal() const = 0;
-    
+
     // Returns the value driving port A from outside the chip
     virtual u8 portAexternal() const = 0;
-    
+
     // Updates variable pa with the value we currently see at port B
     virtual void updatePB() = 0;
     virtual u8 computePB() const = 0;
-    
+
     // Values driving port B from inside the chip
     virtual u8 portBinternal() const = 0;
-    
+
     // Values driving port B from outside the chip
     virtual u8 portBexternal() const = 0;
-    
+
 protected:
-    
+
     // Action method for poking the PA or PB register
     virtual void pokePA(u8 value) { pra = value; updatePA(); }
     virtual void pokePB(u8 value) { prb = value; updatePB(); }
@@ -547,13 +547,13 @@ protected:
     virtual void pokeDDRA(u8 value) { ddra = value; updatePA(); }
     virtual void pokeDDRB(u8 value) { ddrb = value; updatePB(); }
 
-    
+
     //
     // Accessing port pins
     //
-    
+
 public:
-    
+
     // Getter for the interrupt line
     bool getIrq() const { return irq; }
 
@@ -567,14 +567,14 @@ public:
 
     // Sets the serial port pin
     void setSP(bool value) { sp = value; }
-    
-    
+
+
     //
     // Handling interrupts
     //
 
 public:
-    
+
     // Handles an interrupt request from TOD
     void todInterrupt();
 
@@ -582,69 +582,69 @@ private:
 
     // Requests the CPU to interrupt
     virtual void pullDownInterruptLine() = 0;
-    
+
     // Removes the interrupt requests
     virtual void releaseInterruptLine() = 0;
-    
+
     // Loads a latched value into timer
     void reloadTimerA(u64 *delay);
     void reloadTimerB(u64 *delay);
-    
+
     // Triggers an interrupt (invoked inside executeOneCycle())
     void triggerTimerIrq(u64 *delay);
     void triggerTodIrq(u64 *delay);
     void triggerFlagPinIrq(u64 *delay);
     void triggerSerialIrq(u64 *delay);
-    
-    
+
+
     //
     // Handling events
     //
-    
+
 public:
-    
+
     // Services an event in the CIA slot
     void serviceEvent(EventID id);
-    
+
     // Schedules the next execution event
     void scheduleNextExecution();
-    
+
     // Schedules the next wakeup event
     void scheduleWakeUp();
 
-    
+
     //
     // Executing
     //
-    
+
 public:
 
     // Executes the CIA for one CIA cycle
     void executeOneCycle();
-    
-    
+
+
     //
     // Speeding up (sleep logic)
     //
-    
+
 private:
-    
+
     // Puts the CIA into idle state
     void sleep();
-    
+
 public:
-    
+
     // Emulates all previously skipped cycles
     void wakeUp();
     void wakeUp(Cycle targetCycle);
-    
+
     // Returns true if the CIA is in idle state or not
     bool isSleeping() const { return sleeping; }
     bool isAwake() const { return !sleeping; }
 
     // Returns the number of cycles the CIA is idle since
     CIACycle idleSince() const;
-    
+
     // Retruns the total number of cycles the CIA was idle
     CIACycle idleTotal() const { return idleCycles; }
 };
@@ -657,17 +657,17 @@ public:
 class CIAA final : public CIA {
 
 public:
-    
-    CIAA(Amiga& ref) : CIA(ref, 0) { };
+
+    CIAA(Amiga& ref) : CIA(ref, 0) { }
 
 private:
-    
+
     void _powerOn() override;
     void _powerOff() override;
-    
+
     void pullDownInterruptLine() override;
     void releaseInterruptLine() override;
-    
+
     u8 portAinternal() const override;
     u8 portAexternal() const override;
     void updatePA() override;
@@ -677,7 +677,7 @@ private:
     u8 portBexternal() const override;
     void updatePB() override;
     u8 computePB() const override;
-    
+
 public:
 
     // Indicates if the power LED is currently on or off
@@ -693,16 +693,16 @@ public:
 //
 
 class CIAB final : public CIA {
-    
+
 public:
-    
-    CIAB(Amiga& ref) : CIA(ref, 1) { };
+
+    CIAB(Amiga& ref) : CIA(ref, 1) { }
 
 private:
 
     void pullDownInterruptLine() override;
     void releaseInterruptLine() override;
-    
+
     u8 portAinternal() const override;
     u8 portAexternal() const override;
     void updatePA() override;

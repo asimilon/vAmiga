@@ -185,6 +185,11 @@ typedef struct
 ShellCmd;
 */
 
+struct NamedValues {
+    i64 value;
+    i64 value2;
+};
+
 struct Cmd
 {
     // Header
@@ -195,8 +200,7 @@ struct Cmd
 
     // Payload
     union {
-
-        struct { i64 value; i64 value2; };
+        NamedValues rawValues;
         ConfigCmd config;
         KeyCmd key;
         GamePadCmd action;
@@ -210,16 +214,15 @@ struct Cmd
 #ifdef __cplusplus
 
     Cmd() { }
-    Cmd(CmdType type, i64 v1 = 0, i64 v2 = 0) : type(type), value(v1), value2(v2) { }
-    Cmd(CmdType type, void *s, i64 v1 = 0, i64 v2 = 0) : type(type), sender(s), value(v1), value2(v2) { }
-    Cmd(CmdType type, const ConfigCmd &cmd) : type(type), config(cmd) { }
-    Cmd(CmdType type, const KeyCmd &cmd) : type(type), key(cmd) { }
-    Cmd(CmdType type, const GamePadCmd &cmd) : type(type), action(cmd) { }
-    Cmd(CmdType type, const CoordCmd &cmd) : type(type), coord(cmd) { }
-    Cmd(CmdType type, const AlarmCmd &cmd) : type(type), alarm(cmd) { }
+    Cmd(CmdType _type, i64 v1 = 0, i64 v2 = 0) : type(_type), rawValues{v1, v2} { }
+    Cmd(CmdType _type, void *s, i64 v1 = 0, i64 v2 = 0) : type(_type), sender(s), rawValues{v1, v2} { }
+    Cmd(CmdType _type, const ConfigCmd &cmd) : type(_type), config(cmd) { }
+    Cmd(CmdType _type, const KeyCmd &cmd) : type(_type), key(cmd) { }
+    Cmd(CmdType _type, const GamePadCmd &cmd) : type(_type), action(cmd) { }
+    Cmd(CmdType _type, const CoordCmd &cmd) : type(_type), coord(cmd) { }
+    Cmd(CmdType _type, const AlarmCmd &cmd) : type(_type), alarm(cmd) { }
     /*
     Cmd(CmdType type, const ShellCmd &cmd) : type(type), shell(cmd) { }
     */
 #endif
 };
-

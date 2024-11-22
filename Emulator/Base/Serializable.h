@@ -22,7 +22,10 @@ namespace vamiga {
 class Serializable {
 
 public:
-    
+
+    Serializable() = default;
+    Serializable(const Serializable&) = default; // Explicitly define the copy constructor
+    Serializable& operator=(const Serializable&) = default;
     virtual ~Serializable() = default;
 
     // Serializers (to be implemented by the subclass)
@@ -125,6 +128,7 @@ inline void writeString(u8 *& buf, string value)
 #define COUNT(type,size) \
 auto& operator<<(type& v) \
 { \
+(void)v; \
 count += size; \
 return *this; \
 }
@@ -235,6 +239,7 @@ public:
     template <class E, class = std::enable_if_t<std::is_enum<E>{}>>
     SerCounter& operator<<(E &v)
     {
+        (void)v;
         count += sizeof(u64);
         return *this;
     }
@@ -327,7 +332,7 @@ public:
     {
         auto len = v.length();
         for (usize i = 0; i < len; i++) {
-            hash = util::fnvIt64(hash, v[i]);
+            hash = util::fnvIt64(hash, static_cast<u64>(v[i]));
         }
         return *this;
     }
@@ -344,7 +349,7 @@ public:
     {
         isize len = isize(v.size());
         for (isize i = 0; i < len; i++) {
-            *this << v[i];
+            *this << v[static_cast<size_t>(i)];
         }
         return *this;
     }
@@ -482,7 +487,7 @@ public:
         i64 len;
         *this << len;
         v.clear();
-        v.reserve(len);
+        v.reserve(static_cast<size_t>(len));
         for (isize i = 0; i < len; i++) {
             v.push_back(T());
             *this << v.back();
@@ -501,7 +506,7 @@ public:
 
     void copy(void *dst, isize n)
     {
-        std::memcpy(dst, (void *)ptr, n);
+        std::memcpy(dst, (void *)ptr, static_cast<size_t>(n));
         ptr += n;
     }
 
@@ -640,7 +645,7 @@ public:
 
     void copy(const void *src, isize n)
     {
-        std::memcpy((void *)ptr, src, n);
+        std::memcpy((void *)ptr, src, static_cast<size_t>(n));
         ptr += n;
     }
 
@@ -677,7 +682,7 @@ class SerResetter
 
 public:
 
-    SerResetter(bool hard) : hard(hard) { };
+    SerResetter(bool _hard) : hard(_hard) { }
 
     bool isHard() { return hard; }
     bool isSoft() { return !isHard(); }
@@ -773,7 +778,7 @@ public:
         v = (E)0;
         return *this;
     }
-    
+
     template <std::derived_from<Serializable> T>
     SerResetter& operator<<(T &v)
     {
@@ -782,11 +787,11 @@ public:
     }
 };
 
-template <class T> inline bool isResetter(T &worker) { return false; }
-template <> inline bool isResetter(SerResetter &worker) { return true; }
-template <class T> inline bool isSoftResetter(T &worker) { return false; }
+template <class T> inline bool isResetter(T &) { return false; }
+template <> inline bool isResetter(SerResetter &) { return true; }
+template <class T> inline bool isSoftResetter(T &) { return false; }
 template <> inline bool isSoftResetter(SerResetter &worker) { return worker.isSoft(); }
-template <class T> inline bool isHardResetter(T &worker) { return false; }
+template <class T> inline bool isHardResetter(T &) { return false; }
 template <> inline bool isHardResetter(SerResetter &worker) { return worker.isHard(); }
 
 }

@@ -33,11 +33,11 @@ struct Description {
 
 typedef std::vector<Description> Descriptions;
 
-class CoreComponent : 
+class CoreComponent :
 public CoreObject, public Serializable, public Suspendable, public Synchronizable, public Configurable {
 
 public:
-    
+
     // Reference to the emulator this instance belongs to
     class Emulator &emulator;
 
@@ -151,7 +151,7 @@ public:
     //
 
 private:
-    
+
     virtual void _initialize() { }
     virtual void _isReady() const throws { }
     virtual void _powerOn() { }
@@ -170,16 +170,16 @@ private:
     //
     // Serializing
     //
-    
+
 public:
-    
+
     // Returns the size of the internal state in bytes
     isize size(bool recursive = true);
 
     // Resets the internal state
     void reset(bool hard);
-    virtual void _willReset(bool hard) { }
-    virtual void _didReset(bool hard) { }
+    virtual void _willReset(bool /*hard*/) { }
+    virtual void _didReset(bool /*hard*/) { }
 
     // Convenience wrappers
     void hardReset() { reset(true); }

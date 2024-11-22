@@ -34,7 +34,7 @@ protected:
 
     // The thread object
     std::thread thread;
-    
+
     // The current thread state and a change request
     ExecState state = STATE_UNINIT;
     ExecState newState = STATE_UNINIT;
@@ -65,16 +65,16 @@ protected:
     // Debug clocks
     util::Clock wakeupClock;
 
-    
+
     //
     // Initializing
     //
 
 public:
-    
-    Thread() { };
-    ~Thread() { };
-    
+
+    Thread() { }
+    ~Thread() override { }
+
     const char *objectName() const override { return "Thread"; }
 
     // Checks the launch state

@@ -26,7 +26,7 @@ Thumbnail::take(Amiga &amiga, isize dx, isize dy)
     height = (i32)((yEnd - yStart) / dy);
 
     auto *target = screen;
-    auto *source = amiga.denise.pixelEngine.stablePtr();
+    auto *source = amiga.denise.denisePixelEngine.stablePtr();
     source += xStart + yStart * HPIXELS;
 
     for (isize y = 0; y < height; y++) {

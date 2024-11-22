@@ -114,7 +114,7 @@ VideoPort::getTexture() const
 {
     if (isPoweredOn()) {
 
-        auto &result = denise.pixelEngine.getStableBuffer();
+        auto &result = denise.denisePixelEngine.getStableBuffer();
         info.latestGrabbedFrame = result.nr;
         return result;
     }
@@ -136,7 +136,7 @@ VideoPort::buffersWillSwap()
 {
     // Check if the texture has been grabbed
     auto grabbed = info.latestGrabbedFrame;
-    auto current = denise.pixelEngine.getStableBuffer().nr;
+    auto current = denise.denisePixelEngine.getStableBuffer().nr;
 
     if (grabbed < current) {
 

@@ -56,7 +56,7 @@ class DmaDebugger final : public SubComponent, public Inspectable<DmaDebuggerInf
 
     // Enable bits
     bool visualize[BUS_COUNT] = {};
-    
+
     // Colors used for highlighting DMA (derived from config.debugColor)
     RgbColor debugColor[BUS_COUNT][5] = {};
 
@@ -74,7 +74,7 @@ public:
     // Beamtraps
     Beamtraps beamtraps = Beamtraps(agnus);
 
-    
+
     //
     // Initializing
     //
@@ -84,7 +84,7 @@ public:
     DmaDebugger(Amiga &ref);
 
     DmaDebugger& operator= (const DmaDebugger& other) {
-        
+
         CLONE_ARRAY(visualize)
         CLONE_ARRAY(busValue)
         CLONE_ARRAY(busOwner)
@@ -95,15 +95,15 @@ public:
 
         return *this;
     }
-    
-    
+
+
     //
     // Methods from Serializable
     //
 
 private:
 
-    template <class T> void serialize(T& worker) { } SERIALIZERS(serialize);
+    template <class T> void serialize(T& /*worker*/) { } SERIALIZERS(serialize)
 
 
     //
@@ -151,7 +151,7 @@ private:
     //
 
 public:
-    
+
     // Called by Agnus at the end of each scanline
     void eolHandler();
 

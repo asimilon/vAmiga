@@ -1521,11 +1521,11 @@ VAmiga::VAmiga() {
     agnus.agnus = &emu->main.agnus;
     agnus.dma.emu = emu;
     agnus.dma.debugger.emu = emu;
-    agnus.dma.debugger.dmaDebugger = &emu->main.agnus.dmaDebugger;
+    agnus.dma.debugger.dmaDebugger = &emu->main.agnus.agnusDmaDebugger;
     agnus.copper.emu = emu;
-    agnus.copper.copper = &emu->main.agnus.copper;
+    agnus.copper.copper = &emu->main.agnus.agnusCopper;
     agnus.blitter.emu = emu;
-    agnus.blitter.blitter = &emu->main.agnus.blitter;
+    agnus.blitter.blitter = &emu->main.agnus.agnusBlitter;
 
     ciaA.emu = emu;
     ciaA.cia = &emu->main.ciaA;
@@ -1552,7 +1552,7 @@ VAmiga::VAmiga() {
     controlPort2.mouse.mouse = &emu->main.controlPort2.mouse;
 
     copperBreakpoints.emu = emu;
-    copperBreakpoints.guards = &emu->main.agnus.copper.debugger.breakpoints;
+    copperBreakpoints.guards = &emu->main.agnus.agnusCopper.debugger.breakpoints;
 
     cpu.emu = emu;
     cpu.cpu = &emu->main.cpu;
@@ -1620,9 +1620,9 @@ VAmiga::VAmiga() {
     paula.audioChannel3.emu = emu;
     paula.audioChannel3.paula = &emu->main.paula;
     paula.diskController.emu = emu;
-    paula.diskController.diskController = &emu->main.paula.diskController;
+    paula.diskController.diskController = &emu->main.paula.paulaDiskController;
     paula.uart.emu = emu;
-    paula.uart.uart = &emu->main.paula.uart;
+    paula.uart.uart = &emu->main.paula.paulaUart;
 
     retroShell.emu = emu;
     retroShell.retroShell = &emu->main.retroShell;

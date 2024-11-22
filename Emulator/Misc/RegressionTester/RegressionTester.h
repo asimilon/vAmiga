@@ -44,22 +44,22 @@ public:
     isize y1 = Y1;
     isize x2 = X2;
     isize y2 = Y2;
-    
+
 private:
-    
+
     // When the emulator exits, this value is returned to the test script
     u8 retValue = 0;
 
-    
+
     //
     // Constructing
     //
-    
+
 public:
-    
+
     using SubComponent::SubComponent;
-    
-    RegressionTester& operator= (const RegressionTester& other) {
+
+    RegressionTester& operator= (const RegressionTester& /*other*/) {
 
         return *this;
     }
@@ -68,20 +68,20 @@ public:
     //
     // Methods from CoreObject
     //
-    
-private:
-    
-    void _dump(Category category, std::ostream& os) const override { }
 
-    
+private:
+
+    void _dump(Category /*category*/, std::ostream& /*os*/) const override { }
+
+
     //
     // Methods from CoreComponent
     //
 
 private:
-    
-    template <class T> void serialize(T& worker) { } SERIALIZERS(serialize);
-        
+
+    template <class T> void serialize(T& /*worker*/) { } SERIALIZERS(serialize)
+
 public:
 
     const Descriptions &getDescriptions() const override { return descriptions; }
@@ -104,22 +104,22 @@ public:
 
     // Reverts to factory settings
     void prepare(ConfigScheme scheme, string rom = "", string ext = "");
-    
+
     // Runs a test case
     void run(string adf);
-    
+
     // Creates the test image and exits the emulator
     void dumpTexture(Amiga &amiga);
     void dumpTexture(Amiga &amiga, const string &filename);
     void dumpTexture(Amiga &amiga, std::ostream& os);
 
-    
+
     //
     // Handling errors
     //
 
 public:
-    
+
     // Assigns the return code
     void setErrorCode(u8 value);
 };

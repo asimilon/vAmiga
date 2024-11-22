@@ -97,7 +97,7 @@ private:
 
         << config.device;
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
     void _didReset(bool hard) override;
     

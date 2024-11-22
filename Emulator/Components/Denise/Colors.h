@@ -43,7 +43,10 @@ struct RgbColor {
     static const RgbColor cyan;
 
     bool operator==(const RgbColor &rhs) const {
-        return r == rhs.r && g == rhs.g && b == rhs.b;
+        const double tolerance = 1e-9;
+        return std::abs(r - rhs.r) < tolerance
+            && std::abs(g - rhs.g) < tolerance
+            && std::abs(b - rhs.b) < tolerance;
     }
 
     RgbColor mix(RgbColor additive, double weight) const;
@@ -74,7 +77,10 @@ struct YuvColor {
     static const YuvColor cyan;
 
     bool operator==(const YuvColor &rhs) const {
-        return y == rhs.y && u == rhs.u && v == rhs.v;
+        const double tolerance = 1e-9;
+        return std::abs(y - rhs.y) < tolerance
+            && std::abs(u - rhs.u) < tolerance
+            && std::abs(v - rhs.v) < tolerance;
     }
 };
 
@@ -110,7 +116,7 @@ public:
 
         << r << g << b;
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
 
 

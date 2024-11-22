@@ -18,7 +18,7 @@ namespace vamiga {
 class DeniseDebugger final : public SubComponent {
 
     friend class Denise;
-    
+
     Descriptions descriptions = {{
 
         .type           = DeniseDebuggerClass,
@@ -36,13 +36,13 @@ class DeniseDebugger final : public SubComponent {
 
     // Largest viewport seen in the previous frame (stable)
     ViewPortInfo latchedMaxViewPort = { };
-    
+
     // Indicates if the viewport has been changed recently
     bool vpChanged = false;
-    
+
     // Remembers when the latest viewport change message was sent
     Cycle vpMsgSent = 0;
-    
+
     // Sprite information recorded in the current frame (constantly changing)
     SpriteInfo spriteInfo[8] = { };
     u64 spriteData[8][VPOS_CNT] = { };
@@ -50,29 +50,29 @@ class DeniseDebugger final : public SubComponent {
     // Sprite information recorded in the previous frame (stable)
     SpriteInfo latchedSpriteInfo[8] = { };
     u64 latchedSpriteData[8][VPOS_CNT] = { };
-    
-    
+
+
     //
     // Initializing
     //
-    
+
 public:
-    
+
     using SubComponent::SubComponent;
 
-    DeniseDebugger& operator= (const DeniseDebugger& other) {
+    DeniseDebugger& operator= (const DeniseDebugger& /*other*/) {
 
         return *this;
     }
 
-    
+
     //
     // Methods from Serializable
     //
-    
+
 private:
-    
-    template <class T> void serialize(T& worker) { } SERIALIZERS(serialize);
+
+    template <class T> void serialize(T& /*worker*/) { } SERIALIZERS(serialize)
 
 
     //
@@ -84,8 +84,8 @@ public:
     const Descriptions &getDescriptions() const override { return descriptions; }
 
 private:
-    
-    void _dump(Category category, std::ostream& os) const override { };
+
+    void _dump(Category /*category*/, std::ostream& /*os*/) const override { }
     void _initialize() override;
 
 
@@ -101,35 +101,35 @@ public:
     //
     // Tracking sprites
     //
-    
+
 public:
 
     void recordSprites(u8 armed);
     void recordSprite(isize x);
-    
+
     //
     // Tracking viewport changes
     //
-    
+
     void resetDIWTracker();
     void recordDiwH(isize hstrt, isize hstop);
     void recordDiwV(isize vstrt, isize vstop);
     void updateDiwH(isize hstrt, isize hstop);
     void updateDiwV(isize vstrt, isize vstop);
 
-    
+
     //
     // Analyzing
     //
 
 public:
-    
+
     SpriteInfo getSpriteInfo(isize nr);
     isize getSpriteHeight(isize nr) const { return latchedSpriteInfo[nr].height; }
     u16 getSpriteColor(isize nr, isize reg) const { return latchedSpriteInfo[nr].colors[reg]; }
     u64 getSpriteData(isize nr, isize line) const { return latchedSpriteData[nr][line]; }
 
-    
+
     //
     // Handling SYNC events
     //

@@ -439,7 +439,7 @@ DmaDebugger::vSyncHandler()
     // Clear old data in the VBLANK area of the next frame
     for (isize row = 0; row < VBLANK_CNT; row++) {
 
-        auto *ptr = denise.pixelEngine.workingPtr(row);
+        auto *ptr = denise.denisePixelEngine.workingPtr(row);
         for (isize col = 0; col < HPIXELS; col++) {
 
             ptr[col] = FrameBuffer::vblank;

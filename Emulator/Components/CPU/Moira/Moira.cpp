@@ -65,12 +65,12 @@ void
 Moira::setModel(Model cpuModel, Model dasmModel)
 {
     if (this->cpuModel != cpuModel || this->dasmModel != dasmModel) {
-        
+
         this->cpuModel = cpuModel;
         this->dasmModel = dasmModel;
 
         createJumpTable(cpuModel, dasmModel);
-        
+
         reg.cacr &= cacrMask();
         flags &= ~CPU_IS_LOOPING;
     }
@@ -206,9 +206,9 @@ Moira::reset()
 
     // Read the initial (supervisor) stack pointer from memory
     SYNC(2);
-    reg.sp = read16OnReset(0);
+    reg.stackPointer.sp = read16OnReset(0);
     SYNC(4);
-    reg.isp = reg.sp = (read16OnReset(2) & ~0x1) | reg.sp << 16;
+    reg.isp = reg.stackPointer.sp = (read16OnReset(2) & ~0x1) | reg.stackPointer.sp << 16;
     SYNC(4);
     reg.pc = read16OnReset(4);
     SYNC(4);
@@ -523,9 +523,9 @@ Moira::setSupervisorFlags(bool s, bool m)
     bool ispWasVisible =  reg.sr.s && !reg.sr.m;
     bool mspWasVisible =  reg.sr.s &&  reg.sr.m;
 
-    if (uspWasVisible) reg.usp = reg.sp;
-    if (ispWasVisible) reg.isp = reg.sp;
-    if (mspWasVisible) reg.msp = reg.sp;
+    if (uspWasVisible) reg.usp = reg.stackPointer.sp;
+    if (ispWasVisible) reg.isp = reg.stackPointer.sp;
+    if (mspWasVisible) reg.msp = reg.stackPointer.sp;
 
     reg.sr.s = s;
     reg.sr.m = m;
@@ -534,45 +534,45 @@ Moira::setSupervisorFlags(bool s, bool m)
     bool ispIsVisible  =  reg.sr.s && !reg.sr.m;
     bool mspIsVisible  =  reg.sr.s &&  reg.sr.m;
 
-    if (uspIsVisible)  reg.sp = reg.usp;
-    if (ispIsVisible)  reg.sp = reg.isp;
-    if (mspIsVisible)  reg.sp = reg.msp;
+    if (uspIsVisible)  reg.stackPointer.sp = reg.usp;
+    if (ispIsVisible)  reg.stackPointer.sp = reg.isp;
+    if (mspIsVisible)  reg.stackPointer.sp = reg.msp;
 }
 
 template <Size S> u32
 Moira::readD(int n) const
 {
-    return CLIP<S>(reg.d[n]);
+    return CLIP<S>(reg.dataAddress.d[n]);
 }
 
 template <Size S> u32
 Moira::readA(int n) const
 {
-    return CLIP<S>(reg.a[n]);
+    return CLIP<S>(reg.dataAddress.a[n]);
 }
 
 template <Size S> u32
 Moira::readR(int n) const
 {
-    return CLIP<S>(reg.r[n]);
+    return CLIP<S>(reg.allRegisters.r[n]);
 }
 
 template <Size S> void
 Moira::writeD(int n, u32 v)
 {
-    reg.d[n] = WRITE<S>(reg.d[n], v);
+    reg.dataAddress.d[n] = WRITE<S>(reg.dataAddress.d[n], v);
 }
 
 template <Size S> void
 Moira::writeA(int n, u32 v)
 {
-    reg.a[n] = WRITE<S>(reg.a[n], v);
+    reg.dataAddress.a[n] = WRITE<S>(reg.dataAddress.a[n], v);
 }
 
 template <Size S> void
 Moira::writeR(int n, u32 v)
 {
-    reg.r[n] = WRITE<S>(reg.r[n], v);
+    reg.allRegisters.r[n] = WRITE<S>(reg.allRegisters.r[n], v);
 }
 
 u16

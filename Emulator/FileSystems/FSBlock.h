@@ -31,39 +31,39 @@ struct FSBlock : CoreObject {
 
     // The sector number of this block
     Block nr;
-    
+
     // Outcome of the latest integrity check (0 = OK, n = n-th corrupted block)
     isize corrupted = 0;
 
     // Block data
     Buffer<u8> data;
 
-    
+
     //
     // Constructing
     //
-    
+
     FSBlock(FileSystem &ref, Block nr, FSBlockType t);
 
     static FSBlock *make(FileSystem &ref, Block nr, FSBlockType type) throws;
 
-    
+
     //
     // Methods from CoreObject
     //
-    
+
 protected:
-    
+
     const char *objectName() const override;
-    void _dump(Category category, std::ostream& os) const override { }
-    
-    
+    void _dump(Category /*category*/, std::ostream& /*os*/) const override { }
+
+
     //
     // Querying block properties
     //
 
 public:
-    
+
     // Returns the size of this block in bytes (usually 512)
     isize bsize() const;
 
@@ -72,12 +72,12 @@ public:
 
     // Returns the role of a certain byte in this block
     FSItemType itemType(isize byte) const;
-    
+
     // Returns the type and subtype identifiers of this block
     u32 typeID() const;
     u32 subtypeID() const;
-    
-    
+
+
     //
     // Integrity checking
     //
@@ -88,7 +88,7 @@ public:
     // Checks the integrity of a certain byte in this block
     ErrorCode check(isize pos, u8 *expected, bool strict) const;
 
-    
+
     //
     // Reading and writing block data
     //
@@ -101,7 +101,7 @@ public:
 
     // Computes the address of a long word inside the block
     u8 *addr32(isize nr) const;
-    
+
     // Reads, writes, or modifies the n-th long word
     u32 get32(isize n) const { return read32(addr32(n)); }
     void set32(isize n, u32 val) const { write32(addr32(n), val); }
@@ -110,47 +110,47 @@ public:
 
     // Returns the location of the checksum inside this block
     isize checksumLocation() const;
-    
+
     // Computes a checksum for this block
     u32 checksum() const;
-    
+
     // Updates the checksum in this block
     void updateChecksum();
-    
+
 private:
 
     u32 checksumStandard() const;
     u32 checksumBootBlock() const;
 
-    
+
     //
     // Debugging
     //
-    
+
 public:
-    
+
     // Prints some debug information for this block
     void dump() const;
     void dumpData() const;
 
-    
+
     //
     // Importing and exporting
     //
-    
+
 public:
-    
+
     // Imports this block from a buffer (bsize must match the volume block size)
     void importBlock(const u8 *src, isize bsize);
 
     // Exports this block to a buffer (bsize must match the volume block size)
     void exportBlock(u8 *dst, isize bsize);
-    
+
     // Exports this block to the host file system
     ErrorCode exportBlock(const fs::path &path);
 
 private:
-    
+
     ErrorCode exportUserDirBlock(const fs::path &path);
     ErrorCode exportFileHeaderBlock(const fs::path &path);
 
@@ -158,9 +158,9 @@ private:
     //
     // Geting and setting names and comments
     //
-    
+
 public:
-    
+
     FSName getName() const;
     void setName(FSName name);
     bool isNamed(FSName &other) const;
@@ -168,29 +168,29 @@ public:
     FSComment getComment() const;
     void setComment(FSComment name);
 
-    
+
     //
     // Getting and settting date and time
     //
-    
+
     FSTime getCreationDate() const;
     void setCreationDate(FSTime t);
 
     FSTime getModificationDate() const;
     void setModificationDate(FSTime t);
-    
-    
+
+
     //
     // Getting and setting file properties
     //
-    
+
     u32 getProtectionBits() const;
     void setProtectionBits(u32 val);
 
     u32 getFileSize() const;
     void setFileSize(u32 val);
 
-    
+
     //
     // Chaining blocks
     //
@@ -199,7 +199,7 @@ public:
     Block getParentDirRef() const;
     void setParentDirRef(Block ref);
     struct FSBlock *getParentDirBlock();
-    
+
     // Link to the file header block
     Block getFileHeaderRef() const;
     void setFileHeaderRef(Block ref);
@@ -214,12 +214,12 @@ public:
     Block getNextListBlockRef() const;
     void setNextListBlockRef(Block ref);
     FSBlock *getNextListBlock();
-    
+
     // Link to the next bitmap extension block
     Block getNextBmExtBlockRef() const;
     void setNextBmExtBlockRef(Block ref);
     FSBlock *getNextBmExtBlock();
-    
+
     // Link to the first data block
     Block getFirstDataBlockRef() const;
     void setFirstDataBlockRef(Block ref);
@@ -237,7 +237,7 @@ public:
     //
     // Working with hash tables
     //
-    
+
     // Returns the hash table size
     isize hashTableSize() const;
 
@@ -257,8 +257,8 @@ public:
     //
 
     void writeBootBlock(BootBlockId id, isize page);
-    
-    
+
+
     //
     // Working with bitmap blocks
     //
@@ -267,16 +267,16 @@ public:
     bool addBitmapBlockRefs(std::vector<Block> &refs);
     void addBitmapBlockRefs(std::vector<Block> &refs,
                             std::vector<Block>::iterator &it);
-    
+
     //Gets or sets a link to a bitmap block
     Block getBmBlockRef(isize nr) const;
     void setBmBlockRef(isize nr, Block ref);
 
-    
+
     //
     // Working with data blocks
     //
-    
+
     // Gets or sets the data block number
     u32 getDataBlockNr() const;
     void setDataBlockNr(u32 val);
@@ -292,26 +292,26 @@ public:
     // Adds a data block reference to this block
     bool addDataBlockRef(Block ref);
     bool addDataBlockRef(u32 first, u32 ref);
-    
+
     // Gets or sets the number of data bytes stored in this block
     u32 getDataBytesInBlock() const;
     void setDataBytesInBlock(u32 val);
 
-    
+
     //
     // Exporting
     //
-    
+
     isize writeData(std::ostream& os);
     isize writeData(std::ostream& os, isize size);
     isize writeData(Buffer<u8> &buf);
     isize writeData(Buffer<u8> &buf, isize offset, isize count);
 
-    
+
     //
     // Importing
     //
-    
+
     isize overwriteData(Buffer<u8> &buf);
     isize overwriteData(Buffer<u8> &buf, isize offset, isize count);
 };

@@ -18,7 +18,7 @@ namespace vamiga {
 
 class HdController : public ZorroBoard, public Inspectable<HdcInfo, HdcStats> {
 
-    Descriptions descriptions = {
+    Descriptions hdControllerDescriptions = {
         {
             .type           = HdControllerClass,
             .name           = "HdController0",
@@ -45,7 +45,7 @@ class HdController : public ZorroBoard, public Inspectable<HdcInfo, HdcStats> {
         }
     };
 
-    ConfigOptions options = {
+    ConfigOptions hdControllerOptions = {
 
         OPT_HDC_CONNECT
     };
@@ -55,13 +55,13 @@ class HdController : public ZorroBoard, public Inspectable<HdcInfo, HdcStats> {
 
     // Current configuration
     HdcConfig config = {};
-    
+
     // The current controller state
     HdcState hdcState = HDC_UNDETECTED;
-    
+
     // Rom code
     Buffer<u8> rom;
-    
+
     // Number of initialized partitions
     isize numPartitions = 0;
 
@@ -72,9 +72,9 @@ class HdController : public ZorroBoard, public Inspectable<HdcInfo, HdcStats> {
     //
     // Methods
     //
-    
+
 public:
-    
+
     HdController(Amiga& ref, HardDrive& hdr);
 
     HdController& operator= (const HdController& other) {
@@ -96,7 +96,7 @@ public:
     //
     // Methods from Serializable
     //
-    
+
 private:
 
     template <class T>
@@ -118,10 +118,10 @@ private:
 
         << config.connected;
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
     void _didReset(bool hard) override;
-    
+
 
     //
     // Methods from CoreComponent
@@ -129,7 +129,7 @@ private:
 
 public:
 
-    const Descriptions &getDescriptions() const override { return descriptions; }
+    const Descriptions &getDescriptions() const override { return hdControllerDescriptions; }
 
 private:
 
@@ -149,9 +149,9 @@ public:
     //
     // Methods from ZorroBoard
     //
-    
+
 public:
-    
+
     virtual bool pluggedIn() const override;
     virtual isize pages() const override         { return 1; }
     virtual u8 type() const override             { return ERT_ZORROII | ERTF_DIAGVALID; }
@@ -165,10 +165,10 @@ public:
     virtual string revisionName() const override { return "0.3"; }
 
 private:
-    
+
     void updateMemSrcTables() override;
-    
-    
+
+
     //
     // Methods from Configurable
     //
@@ -176,18 +176,18 @@ private:
 public:
 
     const HdcConfig &getConfig() const { return config; }
-    const ConfigOptions &getOptions() const override { return options; }
+    const ConfigOptions &getOptions() const override { return hdControllerOptions; }
     i64 getOption(Option option) const override;
     void checkOption(Option opt, i64 value) override;
     void setOption(Option option, i64 value) override;
 
-    
+
     //
     // Analyzing
     //
-    
+
 public:
-        
+
     // Returns the current controller state
     HdcState getHdcState() const { return hdcState; }
 
@@ -196,11 +196,11 @@ public:
     bool isCompatible() const;
 
 private:
-    
+
     void resetHdcState();
     void changeHdcState(HdcState newState);
 
-    
+
     //
     // Accessing the board
     //
@@ -215,7 +215,7 @@ public:
     void poke16(u32 addr, u16 value) override;
 
 private:
-    
+
     void processCmd(u32 ptr);
     void processInit(u32 ptr);
     void processResource(u32 ptr);

@@ -43,7 +43,7 @@ class CPU : public moira::Moira, public Inspectable<CPUInfo>
     CPUConfig config = {};
 
 public:
-    
+
     // Breakpoints, Watchpoints, Catchpoints
     GuardList breakpoints = GuardList(emulator, debugger.breakpoints);
     GuardList watchpoints = GuardList(emulator, debugger.watchpoints);
@@ -82,7 +82,7 @@ public:
         CLONE(reg.sr.v)
         CLONE(reg.sr.c)
         CLONE(reg.sr.ipl)
-        CLONE_ARRAY(reg.r)
+        CLONE_ARRAY(reg.allRegisters.r)
         CLONE(reg.usp)
         CLONE(reg.isp)
         CLONE(reg.msp)
@@ -111,11 +111,11 @@ public:
         return *this;
     }
 
-    
+
     //
     // Methods from Serializable
     //
-    
+
 private:
 
     template <class T>
@@ -143,7 +143,7 @@ private:
         << reg.sr.v
         << reg.sr.c
         << reg.sr.ipl
-        << reg.r
+        << reg.allRegisters.r
         << reg.usp
         << reg.isp
         << reg.msp
@@ -177,7 +177,7 @@ private:
         << config.overclocking
         << config.regResetVal;
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
 
     //
@@ -197,7 +197,7 @@ public:
 
     void _didReset(bool hard) override;
 
-    
+
     //
     // Methods from CoreComponent
     //
@@ -205,7 +205,7 @@ public:
 public:
 
     const Descriptions &getDescriptions() const override { return descriptions; }
-    
+
 
     //
     // Methods from Inspectable
@@ -221,7 +221,7 @@ public:
     //
 
 public:
-    
+
     const CPUConfig &getConfig() const { return config; }
     const ConfigOptions &getOptions() const override { return options; }
     i64 getOption(Option opt) const override;
@@ -243,7 +243,7 @@ public:
 
     // Delays the CPU by a certain amout of master cycles
     void addWaitStates(Cycle cycles) { clock += AS_CPU_CYCLES(cycles); }
-    
+
     // Resynchronizes an overclocked CPU with the Agnus clock
     void resyncOverclockedCpu();
 
@@ -251,7 +251,7 @@ public:
     //
     // Running the disassembler
     //
-    
+
     // Disassembles a recorded instruction from the log buffer
     const char *disassembleRecordedInstr(isize i, isize *len);
     const char *disassembleRecordedWords(isize i, isize len);
@@ -281,11 +281,11 @@ public:
     //
     // Changing state
     //
-    
+
     // Continues program execution at the specified address
     void jump(u32 addr);
-    
-    
+
+
     //
     // Instruction delegates
     //

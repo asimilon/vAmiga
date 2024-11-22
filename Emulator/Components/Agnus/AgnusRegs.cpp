@@ -22,8 +22,8 @@ Agnus::peekDMACONR() const
     
     assert((result & ((1 << 14) | (1 << 13))) == 0);
     
-    if (blitter.isBusy()) result |= (1 << 14);
-    if (blitter.isZero()) result |= (1 << 13);
+    if (agnusBlitter.isBusy()) result |= (1 << 14);
+    if (agnusBlitter.isZero()) result |= (1 << 13);
     
     return result;
 }
@@ -62,7 +62,7 @@ Agnus::setDMACON(u16 oldValue, u16 value)
     u16 diff = oldDma ^ newDma;
 
     // Inform the delegates
-    blitter.pokeDMACON(oldValue, newValue);
+    agnusBlitter.pokeDMACON(oldValue, newValue);
     
     // Bitplane DMA
     if (diff & BPLEN) setBPLEN(newDma & BPLEN);
@@ -120,7 +120,7 @@ Agnus::setCOPEN(bool value)
 {
     trace(DMA_DEBUG, "Copper DMA %s\n", value ? "on" : "off");
     
-    if (value) copper.activeInThisFrame = true;
+    if (value) agnusCopper.activeInThisFrame = true;
 }
 
 void

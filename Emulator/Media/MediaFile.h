@@ -74,7 +74,7 @@ public:
     // Return a preview image (only available for snapshot files)
     virtual const u32 *previewImageData() const { return nullptr; }
 
-    // Handels data compression (only implemented by snapshot files)
+    // Handles data compression (only implemented by snapshot files)
     virtual bool isCompressed() const { return false; }
     virtual void compress() { }
     virtual void uncompress() { }
@@ -95,20 +95,30 @@ public:
 
 public:
 
-    virtual u8 readByte(isize b, isize offset) const { return 0; }
-    virtual u8 readByte(isize t, isize s, isize offset) const { return 0; }
-    virtual void readSector(u8 *dst, isize b) const { }
-    virtual void readSector(u8 *dst, isize t, isize s) const { }
+    // virtual u8 readByte(isize b, isize offset) const { return 0; }
+    virtual u8 readByte(isize, isize) const { return 0; }
+    // virtual u8 readByte(isize t, isize s, isize offset) const { return 0; }
+    virtual u8 readByte(isize, isize, isize) const { return 0; }
+    // virtual void readSector(u8 *dst, isize b) const { }
+    virtual void readSector(u8 *, isize) const { }
+    // virtual void readSector(u8 *dst, isize t, isize s) const { }
+    virtual void readSector(u8 *, isize, isize) const { }
 
     // Generates a hex dump for some sector data
-    virtual string hexdump(isize b, isize offset, isize len) const { return ""; }
-    virtual string hexdump(isize t, isize s, isize offset, isize len) const { return ""; }
-    virtual string hexdump(isize c, isize h, isize s, isize offset, isize len) const { return ""; }
+    // virtual string hexdump(isize b, isize offset, isize len) const { return ""; }
+    virtual string hexdump(isize, isize, isize) const { return ""; }
+    // virtual string hexdump(isize t, isize s, isize offset, isize len) const { return ""; }
+    virtual string hexdump(isize, isize, isize, isize) const { return ""; }
+    // virtual string hexdump(isize c, isize h, isize s, isize offset, isize len) const { return ""; }
+    virtual string hexdump(isize, isize, isize, isize, isize) const { return ""; }
 
     // Generates an ASCII dump for some sector data
-    virtual string asciidump(isize b, isize offset, isize len) const { return ""; }
-    virtual string asciidump(isize t, isize s, isize offset, isize len) const { return ""; }
-    virtual string asciidump(isize c, isize h, isize s, isize offset, isize len) const { return ""; }
+    // virtual string asciidump(isize b, isize offset, isize len) const { return ""; }
+    virtual string asciidump(isize, isize, isize) const { return ""; }
+    // virtual string asciidump(isize t, isize s, isize offset, isize len) const { return ""; }
+    virtual string asciidump(isize, isize, isize, isize) const { return ""; }
+    // virtual string asciidump(isize c, isize h, isize s, isize offset, isize len) const { return ""; }
+    virtual string asciidump(isize, isize, isize, isize, isize) const { return ""; }
 
     //
     // Serializing

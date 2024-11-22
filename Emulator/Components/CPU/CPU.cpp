@@ -81,7 +81,7 @@ u16
 Moira::read16Dasm(u32 addr) const
 {
     auto result = mem.spypeek16<ACCESSOR_CPU>(addr);
-    
+
     // For LINE-A instructions, check if the opcode is a software trap
     if (Debugger::isLineAInstr(result)) result = debugger.swTraps.resolve(result);
 
@@ -142,7 +142,7 @@ Moira::willExecute(const char *func, Instr I, Mode M, Size S, u16 opcode)
 
         default:
         {
-            
+
             char str[128];
             disassemble(str, reg.pc0);
             printf("%s\n", str);
@@ -280,7 +280,7 @@ namespace vamiga {
 
 CPU::CPU(Amiga& ref) : moira::Moira(ref)
 {
-    
+
 }
 
 i64
@@ -385,17 +385,17 @@ CPU::_didReset(bool hard)
 
         // Reset the Moira core
         Moira::reset();
-        
+
         // Initialize all data and address registers with the startup value
-        for(int i = 0; i < 8; i++) reg.d[i] = reg.a[i] = config.regResetVal;
-        reg.a[7] = reg.isp;
-        
+        for(int i = 0; i < 8; i++) reg.dataAddress.d[i] = reg.dataAddress.a[i] = config.regResetVal;
+        reg.dataAddress.a[7] = reg.isp;
+
         // Remove all recorded instructions and set the log flag if needed
         debugger.clearLog();
         if (emulator.isTracking()) flags |= moira::CPU_LOG_INSTRUCTION;
 
     } else {
-        
+
         /* "The RESET instruction causes the processor to assert RESET for 124
          *  clock periods toreset the external devices of the system. The
          *  internal state of the processor is not affected. Neither the status
@@ -411,13 +411,13 @@ void
 CPU::cacheInfo(CPUInfo &info) const
 {
     {   SYNCHRONIZED
-        
+
         info.clock = clock;
 
         info.pc0 = getPC0() & 0xFFFFFF;
         info.ird = getIRD();
         info.irc = getIRC();
-        
+
         for (int i = 0; i < 8; i++) {
             info.d[i] = getD(i);
             info.a[i] = getA(i);
@@ -433,7 +433,7 @@ CPU::cacheInfo(CPUInfo &info) const
         info.caar = (u8)getCAAR();
         info.ipl = (u8)getIPL();
         info.fc = (u8)readFC(); // TODO
-        
+
         info.halt = isHalted();
     }
 }
@@ -462,11 +462,11 @@ CPU::_dump(Category category, std::ostream& os) const
     }
 
     if (category == Category::Registers) {
-        
+
         os << util::tab("PC");
         os << util::hex(reg.pc0) << std::endl;
         os << std::endl;
-        
+
         os << util::tab("ISP");
         os << util::hex(reg.isp) << std::endl;
         os << util::tab("USP");
@@ -476,21 +476,21 @@ CPU::_dump(Category category, std::ostream& os) const
         os << util::tab("IRD");
         os << util::hex(queue.ird) << std::endl;
         os << std::endl;
-        
+
         os << util::tab("D0 - D3");
-        os << util::hex(reg.d[0]) << ' ' << util::hex(reg.d[1]) << ' ';
-        os << util::hex(reg.d[2]) << ' ' << util::hex(reg.d[3]) << ' ' << std::endl;
+        os << util::hex(reg.dataAddress.d[0]) << ' ' << util::hex(reg.dataAddress.d[1]) << ' ';
+        os << util::hex(reg.dataAddress.d[2]) << ' ' << util::hex(reg.dataAddress.d[3]) << ' ' << std::endl;
         os << util::tab("D4 - D7");
-        os << util::hex(reg.d[4]) << ' ' << util::hex(reg.d[5]) << ' ';
-        os << util::hex(reg.d[6]) << ' ' << util::hex(reg.d[7]) << ' ' << std::endl;
+        os << util::hex(reg.dataAddress.d[4]) << ' ' << util::hex(reg.dataAddress.d[5]) << ' ';
+        os << util::hex(reg.dataAddress.d[6]) << ' ' << util::hex(reg.dataAddress.d[7]) << ' ' << std::endl;
         os << util::tab("A0 - A3");
-        os << util::hex(reg.a[0]) << ' ' << util::hex(reg.a[1]) << ' ';
-        os << util::hex(reg.a[2]) << ' ' << util::hex(reg.a[3]) << ' ' << std::endl;
+        os << util::hex(reg.dataAddress.a[0]) << ' ' << util::hex(reg.dataAddress.a[1]) << ' ';
+        os << util::hex(reg.dataAddress.a[2]) << ' ' << util::hex(reg.dataAddress.a[3]) << ' ' << std::endl;
         os << util::tab("A4 - A7");
-        os << util::hex(reg.a[4]) << ' ' << util::hex(reg.a[5]) << ' ';
-        os << util::hex(reg.a[6]) << ' ' << util::hex(reg.a[7]) << ' ' << std::endl;
+        os << util::hex(reg.dataAddress.a[4]) << ' ' << util::hex(reg.dataAddress.a[5]) << ' ';
+        os << util::hex(reg.dataAddress.a[6]) << ' ' << util::hex(reg.dataAddress.a[7]) << ' ' << std::endl;
         os << std::endl;
-        
+
         os << util::tab("Flags");
         os << (reg.sr.t1 ? 'T' : 't');
         os << (reg.sr.t0 ? 'T' : 't');
@@ -534,7 +534,7 @@ CPU::_dump(Category category, std::ostream& os) const
         os << util::tab("Last exception");
         os << util::dec(exception);
     }
-    
+
     if (category == Category::Breakpoints) {
 
         if (debugger.breakpoints.elements()) {
@@ -552,7 +552,7 @@ CPU::_dump(Category category, std::ostream& os) const
             os << "No watchpoints set" << std::endl;
         }
     }
-    
+
     if (category == Category::Catchpoints) {
 
         if (debugger.catchpoints.elements()) {
@@ -652,7 +652,7 @@ const char *
 CPU::disassembleRecordedFlags(isize i)
 {
     static char result[18];
-    
+
     disassembleSR(result, debugger.logEntryAbs((int)i).sr);
     return result;
 }
@@ -798,7 +798,7 @@ void
 CPU::jump(u32 addr)
 {
     {   SUSPENDED
-        
+
         debugger.jump(addr);
     }
 }
@@ -806,16 +806,16 @@ CPU::jump(u32 addr)
 void
 CPU::processCommand(const Cmd &cmd)
 {
-    isize nr = isize(cmd.value);
-    u32 addr = u32(cmd.value);
+    isize nr = isize(cmd.rawValues.value);
+    u32 addr = u32(cmd.rawValues.value);
     auto guards = (GuardList *)cmd.sender;
 
     switch (cmd.type) {
 
         case CMD_GUARD_SET_AT:      guards->setAt(addr); break;
         case CMD_GUARD_REMOVE_NR:   guards->remove(nr); break;
-        case CMD_GUARD_MOVE_NR:     guards->moveTo(nr, u32(cmd.value2)); break;
-        case CMD_GUARD_IGNORE_NR:   guards->ignore(nr, long(cmd.value2)); break;
+        case CMD_GUARD_MOVE_NR:     guards->moveTo(nr, u32(cmd.rawValues.value2)); break;
+        case CMD_GUARD_IGNORE_NR:   guards->ignore(nr, long(cmd.rawValues.value2)); break;
         case CMD_GUARD_REMOVE_AT:   guards->removeAt(addr); break;
         case CMD_GUARD_REMOVE_ALL:  guards->removeAll(); break;
         case CMD_GUARD_ENABLE_NR:   guards->enable(nr); break;
@@ -824,7 +824,7 @@ CPU::processCommand(const Cmd &cmd)
         case CMD_GUARD_DISABLE_NR:  guards->disable(nr); break;
         case CMD_GUARD_DISABLE_AT:  guards->disableAt(addr); break;
         case CMD_GUARD_DISABLE_ALL: guards->disableAll(); break;
-            
+
         default:
             fatalError;
     }

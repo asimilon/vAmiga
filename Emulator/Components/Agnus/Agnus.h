@@ -55,13 +55,13 @@ class Agnus : public SubComponent, public Inspectable<AgnusInfo, AgnusStats> {
     //
     // Subcomponents
     //
-    
+
 public:
 
     Sequencer sequencer = Sequencer(amiga);
-    Copper copper = Copper(amiga);
-    Blitter blitter = Blitter(amiga);
-    DmaDebugger dmaDebugger = DmaDebugger(amiga);
+    Copper agnusCopper = Copper(amiga);
+    Blitter agnusBlitter = Blitter(amiga);
+    DmaDebugger agnusDmaDebugger = DmaDebugger(amiga);
 
 
     //
@@ -69,7 +69,7 @@ public:
     //
 
 public:
-    
+
     // Trigger cycle
     Cycle trigger[SLOT_COUNT] = { };
 
@@ -78,17 +78,17 @@ public:
 
     // An optional data value
     i64 data[SLOT_COUNT] = { };
-    
+
     // Next trigger cycle
     Cycle nextTrigger = NEVER;
-    
+
     // Pending register changes
     RegChangeRecorder<8> changeRecorder;
 
     // An optional sync event to be processed in serviceRegEvent()
     EventID syncEvent = EVENT_NONE;
 
-    
+
     //
     // Counters
     //
@@ -102,14 +102,14 @@ public:
     // Latched beam position (recorded when BPLCON0::ERSY is set)
     Beam latchedPos = { };
 
-    
+
     //
     // Registers
     //
 
     // Memory mask (determines the width of all DMA memory pointer registers)
     u32 ptrMask = 0;
-    
+
     // A copy of BPLCON0 and BPLCON1 (Denise has its own copies)
     u16 bplcon0 = 0;
     u16 bplcon0Initial = 0;
@@ -119,7 +119,7 @@ public:
     // The DMA control register
     u16 dmacon = 0;
     u16 dmaconInitial = 0;
-    
+
     // The disk DMA pointer
     u32 dskpt = 0;
 
@@ -150,14 +150,14 @@ public:
     // Bitplane offsets (derived from bplcon1)
     i8 scrollOdd = 0;
     i8 scrollEven = 0;
-    
+
 
     //
     // Data bus
     //
 
 public:
-    
+
     // Recorded DMA values for all cycles in the current rasterline
     u16 busValue[HPOS_CNT] = { };
 
@@ -170,13 +170,13 @@ public:
     //
     // Signals from other components
     //
-    
+
 private:
 
     // DMA requests from Paula
     bool audxDR[4] = { };
     bool audxDSR[4] = { };
-    
+
     /* Blitter slow down. The BLS signal indicates that the CPU's request to
      * access the bus has been denied for three or more consecutive cycles.
      */
@@ -188,7 +188,7 @@ private:
     //
 
 public:
-    
+
     /* The vertical trigger positions of all 8 sprites. Note that Agnus knows
      * nothing about the horizontal trigger positions (only Denise does).
      */
@@ -198,7 +198,7 @@ public:
     // The current DMA states of all 8 sprites
     SprDMAState sprDmaState[8] = { };
 
-    
+
     //
     // Class methods
     //
@@ -209,18 +209,18 @@ public:
     //
     // Initializing
     //
-    
+
 public:
-    
+
     Agnus(Amiga& ref);
-    
+
     Agnus& operator= (const Agnus& other) {
 
         CLONE(sequencer)
-        CLONE(copper)
-        CLONE(blitter)
-        CLONE(dmaDebugger)
-        
+        CLONE(agnusCopper)
+        CLONE(agnusBlitter)
+        CLONE(agnusDmaDebugger)
+
         CLONE_ARRAY(trigger)
         CLONE_ARRAY(id)
         CLONE_ARRAY(data)
@@ -350,16 +350,16 @@ public:
     const Descriptions &getDescriptions() const override { return descriptions; }
 
 private:
-    
+
     void _dump(Category category, std::ostream& os) const override;
 
-    
+
     //
     // Methods from Configurable
     //
 
 public:
-    
+
     const AgnusConfig &getConfig() const { return config; }
     const ConfigOptions &getOptions() const override { return options; }
     i64 getOption(Option option) const override;
@@ -385,27 +385,27 @@ public:
 
     // Returns the chip identification bits of this Agnus (show up in VPOSR)
     u16 idBits() const;
-    
+
     // Returns the maximum amout of Chip Ram in KB this Agnus can handle
     isize chipRamLimit() const;
 
     // Returns the line in which the VERTB interrupt is triggered
     isize vStrobeLine() const { return config.revision == AGNUS_OCS_OLD ? 1 : 0; }
-    
+
     // Returns a bitmask indicating the used bits in DDFSTRT / DDFSTOP
     u16 ddfMask() const { return isOCS() ? 0xFC : 0xFE; }
-    
-    
+
+
     //
     // Analyzing
     //
-    
+
 public:
-    
+
     void cacheInfo(AgnusInfo &result) const override;
 
 private:
-    
+
     void updateStats();
 
 
@@ -427,7 +427,7 @@ public:
     //
     // Querying graphic modes
     //
-    
+
 public:
 
     // Computes the bitmap resolution from a given BPLCON0 value
@@ -446,7 +446,7 @@ public:
     //
     // Operating the device
     //
-    
+
 public:
 
     // Executes Agnus for a single cycle
@@ -454,7 +454,7 @@ public:
 
     // Executes Agnus for a certain amount of cycles
     void execute(DMACycle cycles);
-    
+
     // Executes Agnus to the beginning of the next E clock cycle
     void syncWithEClock();
 
@@ -500,7 +500,7 @@ private:
     //
 
 public:
-    
+
     // Returns true if the Blitter has priority over the CPU
     static bool bltpri(u16 value) { return GET_BIT(value, 10); }
     bool bltpri() const { return bltpri(dmacon); }
@@ -519,7 +519,7 @@ public:
     bool bltdma() const { return bltdma(dmacon); }
     bool sprdma() const { return sprdma(dmacon); }
     bool dskdma() const { return dskdma(dmacon); }
-    
+
 
     //
     // Performing DMA (AgnusDma.cpp)
@@ -558,7 +558,7 @@ public:
     //
     // Accessing registers (AgnusRegisters.cpp)
     //
-    
+
 public:
 
     u16 peekDMACONR() const;
@@ -597,7 +597,7 @@ public:
 
     void pokeBPL2MOD(u16 value);
     void setBPL2MOD(u16 value);
-    
+
     template <int x, Accessor> void pokeSPRxPOS(u16 value);
     template <int x> void setSPRxPOS(u16 value);
 
@@ -606,13 +606,13 @@ public:
 
     void pokeBEAMCON0(u16 value);
 
-    
+
     //
     // Accessing DMA pointer registers (AgnusRegisters.cpp)
     //
-    
+
 public:
-    
+
     template <Accessor s> void pokeDSKPTH(u16 value);
     void setDSKPTH(u16 value);
 
@@ -636,7 +636,7 @@ public:
     template <int x> void setSPRxPTL(u16 value);
 
 private:
-    
+
     // Checks whether a write to a pointer register should be dropped
     bool dropWrite(BusOwner owner);
 
@@ -644,35 +644,35 @@ private:
     //
     // Checking events
     //
-    
+
 public:
-    
+
     // Returns true iff the specified slot contains any event
     template<EventSlot s> bool hasEvent() const { return this->id[s] != (EventID)0; }
-    
+
     // Returns true iff the specified slot contains a specific event
-    template<EventSlot s> bool hasEvent(EventID id) const { return this->id[s] == id; }
-    
+    template<EventSlot s> bool hasEvent(EventID _id) const { return this->id[s] == _id; }
+
     // Returns true iff the specified slot contains a pending event
     template<EventSlot s> bool isPending() const { return this->trigger[s] != NEVER; }
-    
+
     // Returns true iff the specified slot contains a due event
     template<EventSlot s> bool isDue(Cycle cycle) const { return cycle >= this->trigger[s]; }
-    
-    
+
+
     //
     // Scheduling events
     //
-    
+
 public:
-    
-    template<EventSlot s> void scheduleAbs(Cycle cycle, EventID id)
+
+    template<EventSlot s> void scheduleAbs(Cycle cycle, EventID _id)
     {
         this->trigger[s] = cycle;
-        this->id[s] = id;
-        
+        this->id[s] = _id;
+
         if (cycle < nextTrigger) nextTrigger = cycle;
-        
+
         if constexpr (isTertiarySlot(s)) {
             if (cycle < trigger[SLOT_TER]) trigger[SLOT_TER] = cycle;
             if (cycle < trigger[SLOT_SEC]) trigger[SLOT_SEC] = cycle;
@@ -681,40 +681,40 @@ public:
             if (cycle < trigger[SLOT_SEC]) trigger[SLOT_SEC] = cycle;
         }
     }
-    
-    template<EventSlot s> void scheduleAbs(Cycle cycle, EventID id, i64 data)
+
+    template<EventSlot s> void scheduleAbs(Cycle cycle, EventID _id, i64 _data)
     {
-        scheduleAbs<s>(cycle, id);
-        this->data[s] = data;
-    }
-    
-    template<EventSlot s> void scheduleImm(EventID id)
-    {
-        scheduleAbs<s>(0, id);
-    }
-    
-    template<EventSlot s> void scheduleImm(EventID id, i64 data)
-    {
-        scheduleAbs<s>(0, id);
-        this->data[s] = data;
+        scheduleAbs<s>(cycle, _id);
+        this->data[s] = _data;
     }
 
-    template<EventSlot s> void scheduleInc(Cycle cycle, EventID id)
+    template<EventSlot s> void scheduleImm(EventID _id)
     {
-        scheduleAbs<s>(trigger[s] + cycle, id);
+        scheduleAbs<s>(0, _id);
     }
-    
-    template<EventSlot s> void scheduleInc(Cycle cycle, EventID id, i64 data)
+
+    template<EventSlot s> void scheduleImm(EventID _id, i64 _data)
     {
-        scheduleAbs<s>(trigger[s] + cycle, id);
-        this->data[s] = data;
+        scheduleAbs<s>(0, _id);
+        this->data[s] = _data;
+    }
+
+    template<EventSlot s> void scheduleInc(Cycle cycle, EventID _id)
+    {
+        scheduleAbs<s>(trigger[s] + cycle, _id);
+    }
+
+    template<EventSlot s> void scheduleInc(Cycle cycle, EventID _id, i64 _data)
+    {
+        scheduleAbs<s>(trigger[s] + cycle, _id);
+        this->data[s] = _data;
     }
 
     template<EventSlot s> void rescheduleAbs(Cycle cycle)
     {
         trigger[s] = cycle;
         if (cycle < nextTrigger) nextTrigger = cycle;
-        
+
         if constexpr (isTertiarySlot(s)) {
             if (cycle < trigger[SLOT_TER]) trigger[SLOT_TER] = cycle;
         }
@@ -722,31 +722,31 @@ public:
             if (cycle < trigger[SLOT_SEC]) trigger[SLOT_SEC] = cycle;
         }
     }
-    
+
     template<EventSlot s> void rescheduleInc(Cycle cycle)
     {
         rescheduleAbs<s>(trigger[s] + cycle);
     }
-    template<EventSlot s> void scheduleRel(Cycle cycle, EventID id) {
-        scheduleAbs<s>(clock + cycle, id);
+    template<EventSlot s> void scheduleRel(Cycle cycle, EventID _id) {
+        scheduleAbs<s>(clock + cycle, _id);
     }
 
-    template<EventSlot s> void scheduleRel(Cycle cycle, EventID id, i64 data) {
-        scheduleAbs<s>(clock + cycle, id, data);
+    template<EventSlot s> void scheduleRel(Cycle cycle, EventID _id, i64 _data) {
+        scheduleAbs<s>(clock + cycle, _id, _data);
     }
 
-    template<EventSlot s> void schedulePos(isize vpos, isize hpos, EventID id) {
+    template<EventSlot s> void schedulePos(isize vpos, isize hpos, EventID _id) {
 
         assert(vpos > pos.v || (vpos == pos.v && hpos >= pos.h));
-        scheduleRel<s>(DMA_CYCLES(pos.diff(vpos, hpos)), id);
+        scheduleRel<s>(DMA_CYCLES(pos.diff(vpos, hpos)), _id);
     }
 
-    template<EventSlot s> void schedulePos(isize vpos, isize hpos, EventID id, i64 data) {
+    template<EventSlot s> void schedulePos(isize vpos, isize hpos, EventID _id, i64 _data) {
 
         assert(vpos > pos.v || (vpos == pos.v && hpos >= pos.h));
-        scheduleRel<s>(DMA_CYCLES(pos.diff(vpos, hpos)), id, data);
+        scheduleRel<s>(DMA_CYCLES(pos.diff(vpos, hpos)), _id, _data);
     }
-    
+
     template<EventSlot s> void rescheduleRel(Cycle cycle) {
         rescheduleAbs<s>(clock + cycle);
     }
@@ -764,7 +764,7 @@ public:
         trigger[s] = NEVER;
     }
 
-    
+
     //
     // Scheduling specific events (AgnusEvents.cpp)
     //
@@ -833,7 +833,7 @@ public:
 
     // Services a Disk, Audio, or Sprite event
     void serviceDASEvent(EventID id);
-    
+
     // Services an inspection event
     void serviceINSEvent();
 };

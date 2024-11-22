@@ -2136,7 +2136,7 @@ Memory::peekCustom16(u32 addr)
         case 0x006 >> 1: // VHPOSR
             result = agnus.peekVHPOSR(); break;
         case 0x008 >> 1: // DSKDATR
-            result = paula.diskController.peekDSKDATR(); break;
+            result = paula.paulaDiskController.peekDSKDATR(); break;
         case 0x00A >> 1: // JOY0DAT
             result = denise.peekJOY0DATR(); break;
         case 0x00C >> 1: // JOY1DAT

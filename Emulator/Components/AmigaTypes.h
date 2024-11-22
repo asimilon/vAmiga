@@ -118,7 +118,7 @@ struct ConfigSchemeEnum : vamiga::util::Reflection<ConfigSchemeEnum, ConfigSchem
     static const char *_key(long value)
     {
         switch (value) {
-                
+
             case CONFIG_A1000_OCS_1MB:  return "A1000_OCS_1MB";
             case CONFIG_A500_OCS_1MB:   return "A500_OCS_1MB";
             case CONFIG_A500_ECS_1MB:   return "A500_ECS_1MB";
@@ -321,7 +321,7 @@ typedef struct
 
     //! Delay between two auto-snapshots in seconds
     isize snapshotDelay;
-    
+
     //! Indicates whether snapshots should be stored in compressed form
     bool compressSnapshots;
 }
@@ -362,6 +362,6 @@ constexpr u32 COPPERWP_REACHED   = (1 << 8);
 constexpr u32 AUTO_SNAPSHOT      = (1 << 9);
 constexpr u32 USER_SNAPSHOT      = (1 << 10);
 constexpr u32 SYNC_THREAD        = (1 << 11);
-};
+}
 
 #endif

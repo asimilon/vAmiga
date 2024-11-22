@@ -19,7 +19,7 @@ class DiagBoard : public ZorroBoard {
 
     // Current configuration
     DiagBoardConfig config = {};
-    
+
     // Rom code
     Buffer<u8> rom;
 
@@ -29,45 +29,45 @@ class DiagBoard : public ZorroBoard {
 
     // List of tracked tasks
     std::vector <u32> tasks;
-    
+
     // Names of tasks to catch
     std::vector <string> targets;
-    
-    
+
+
     //
     // Initializing
     //
-    
+
 public:
-    
+
     using ZorroBoard::ZorroBoard;
-    DiagBoard& operator= (const DiagBoard& other) { return *this; }
+    DiagBoard& operator= (const DiagBoard& /*other*/) { return *this; }
 
 
     //
     // Methods from CoreObject
     //
-    
+
 private:
-    
+
     void _dump(Category category, std::ostream& os) const override;
 
-    
+
     //
     // Methods from CoreComponent
     //
-    
+
 private:
-        
+
     template <class T>
-    void serialize(T& worker)
+    void serialize(T& /*worker*/)
     {
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
     void _didReset(bool hard) override;
 
-    
+
     //
     // Methods from Configurable
     //
@@ -79,14 +79,14 @@ public:
     i64 getOption(Option option) const override;
     void checkOption(Option opt, i64 value) override;
     void setOption(Option option, i64 value) override;
-    
-    
+
+
     //
     // Methods from ZorroBoard
     //
-    
+
 public:
-    
+
     virtual bool pluggedIn() const override;
     virtual isize pages() const override         { return 1; }
     virtual u8 type() const override             { return ERT_ZORROII | ERTF_DIAGVALID; }
@@ -100,9 +100,9 @@ public:
     virtual string revisionName() const override { return "0.1"; }
 
 private:
-    
+
     void updateMemSrcTables() override;
-    
+
 
     //
     // Accessing the board
@@ -118,19 +118,19 @@ public:
     void poke16(u32 addr, u16 value) override;
 
 private:
-    
+
     void processInit(u32 ptr1);
     void processAddTask(u32 ptr1);
     void processRemTask(u32 ptr1);
     void processLoadSeg(u32 ptr1, u32 ptr2, bool bstr);
 
-    
+
     //
     // Using the board
     //
-    
+
 public:
-    
+
     // Pauses emulation when the specified task launches
     void catchTask(const string &name);
 };

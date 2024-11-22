@@ -48,28 +48,28 @@ class Denise final : public SubComponent, public Inspectable<DeniseInfo> {
 
     // Current configuration
     DeniseConfig config = {};
-    
-    
+
+
     //
     // Subcomponents
     //
-    
+
 public:
-    
+
     // Color synthesizer for computing RGBA values
-    PixelEngine pixelEngine = PixelEngine(amiga);
+    PixelEngine denisePixelEngine = PixelEngine(amiga);
 
     // Sprite tracker
     DeniseDebugger debugger = DeniseDebugger(amiga);
-    
+
     // A screen recorder for creating video streams
     Recorder screenRecorder = Recorder(amiga);
 
-    
+
     //
     // Counters
     //
-    
+
     // Denise has been executed up to this clock cycle
     Cycle clock = 0;
 
@@ -79,7 +79,7 @@ public:
     //
     // Registers
     //
-    
+
     // Register values as written by poke[DIWSTRT/STOP/HIGH]
     u16 diwstrt;
     u16 diwstop;
@@ -88,7 +88,7 @@ public:
     // Display window coordinates (extracted from DIWSTRT, DIWSTOP, and DIWHIGH)
     isize hstrt;
     isize hstop;
-    
+
     /* Denise contains a flipflop controlling the horizontal display window.
      * It is cleared inside the border area and set inside the display area:
      *
@@ -125,10 +125,10 @@ public:
 
     // Color register index for the border color (0 = background color)
     u8 borderColor;
-    
+
     // Bitplane data registers
     u16 bpldat[6];
-    
+
     // Pipeline registers
     u16 bpldatPipe[6];
 
@@ -139,7 +139,7 @@ public:
     //
     // Shift registers
     //
-    
+
     /* Parallel-to-serial shift registers. Denise transfers the current values
      * of the BPLDAT registers into these shift registers after BPLDAT1 is
      * written to. This is emulated in function fillShiftRegister().
@@ -150,7 +150,7 @@ public:
     bool armedOdd;
     bool armedEven;
 
-    
+
     //
     // Register change management
     //
@@ -186,7 +186,7 @@ public:
     // The serial shift registers of all 8 sprites
     u16 ssra[8];
     u16 ssrb[8];
-    
+
     /* Indicates which sprites are currently armed. An armed sprite is a sprite
      * that will be drawn in this line.
      */
@@ -311,7 +311,7 @@ public:
     static constexpr u16 Z_SP01234567 = Z_SP0|Z_SP1|Z_SP2|Z_SP3|Z_SP4|Z_SP5|Z_SP6|Z_SP7;
     static constexpr u16 Z_SP0246 = Z_SP0|Z_SP2|Z_SP4|Z_SP6;
     static constexpr u16 Z_SP1357 = Z_SP1|Z_SP3|Z_SP5|Z_SP7;
-    
+
     static bool isSpritePixel(u16 z) {
         return (z & Z_SP01234567) > (z & ~Z_SP01234567);
     }
@@ -321,12 +321,12 @@ public:
     static int upperPlayfield(u16 z) {
         return ((z & Z_DUAL) == Z_DPF2 || (z & Z_DUAL) == Z_DPF21) ? 2 : 1;
     }
-    
-    
+
+
     //
     // Initializing
     //
-    
+
 public:
 
     Denise(Amiga& ref);
@@ -335,7 +335,7 @@ public:
 
         CLONE(config)
 
-        CLONE(pixelEngine)
+        CLONE(denisePixelEngine)
         CLONE(debugger)
         CLONE(screenRecorder)
 
@@ -397,9 +397,9 @@ public:
     //
     // Methods from Serializable
     //
-    
+
 private:
-        
+
     template <class T>
     void serialize(T& worker)
     {
@@ -462,7 +462,7 @@ private:
         << config.clxSprPlf
         << config.clxPlfPlf;
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
 
     //
@@ -477,20 +477,20 @@ private:
 
     void _dump(Category category, std::ostream& os) const override;
     void _didReset(bool hard) override;
-    
+
 
     //
     // Methods from Configurable
     //
 
 public:
-    
+
     const DeniseConfig &getConfig() const { return config; }
     const ConfigOptions &getOptions() const override { return options; }
     i64 getOption(Option option) const override;
     void checkOption(Option opt, i64 value) override;
     void setOption(Option option, i64 value) override;
-    
+
 
     //
     // Querying chip properties
@@ -507,16 +507,16 @@ public:
     //
 
 public:
-    
+
     void cacheInfo(DeniseInfo &result) const override;
 
 
     //
     // Working with the bitplane shift registers
     //
-    
+
 public:
-    
+
     // Transfers the bitplane pipeline registers to the shift registers
     void updateShiftRegistersOdd();
     void updateShiftRegistersEven();
@@ -526,7 +526,7 @@ public:
     void extractSlicesOdd(u8 slices[16]);
     void extractSlicesEven(u8 slices[16]);
 
-    
+
     //
     // Drawing bitplanes
     //
@@ -545,7 +545,7 @@ public:
     void drawShresBoth();
 
 private:
-    
+
     // Core drawing routines
     template <Resolution mode> void drawOdd(Pixel offset);
     template <Resolution mode> void drawEven(Pixel offset);
@@ -562,17 +562,17 @@ private:
 
     // Called by translate() in dual-playfield mode
     void translateDPF(Pixel from, Pixel to, PFState &state);
-    
+
     // Called by translateDPF(...)
     template <bool prio> void translateDPF(Pixel from, Pixel to, PFState &state);
 
-    
+
     //
     // Drawing the border
     //
-    
+
 private:
-    
+
     // Determines the color register index for drawing the border
     void updateBorderColor();
 
@@ -600,7 +600,7 @@ public:
     bool spritePixelIsVisible(Pixel hpos) const;
 
 private:
-    
+
     // Draws all sprites
     void drawSprites();
     template <Resolution R> void drawSprites();
@@ -609,7 +609,7 @@ private:
     template <isize pair, Resolution R> void drawSpritePair();
     template <isize pair, Resolution R> void drawSpritePair(Pixel hstrt, Pixel hstop,
                                                             Pixel strt1, Pixel strt2);
-    
+
     // Replays all recorded sprite register changes
     template <isize pair> void replaySpriteRegChanges();
 
@@ -617,7 +617,7 @@ private:
     template <isize x, Resolution R> void drawSpritePixel(Pixel hpos);
     template <isize x, Resolution R> void drawAttachedSpritePixelPair(Pixel hpos);
 
-    
+
     //
     // Checking collisions
     //
@@ -637,7 +637,7 @@ private:
     //
     // Delegation methods
     //
-    
+
 public:
 
     // Called by Agnus at the beginning of each frame (DEPRECATED)
@@ -652,11 +652,11 @@ public:
     // Called by Agnus at the end of each frame
     void eofHandler();
 
-    
+
     //
     // Accessing registers (DeniseRegs.cpp)
     //
-    
+
 public:
 
     void setDIWSTRT(u16 value);
@@ -686,14 +686,14 @@ public:
 
     template <Accessor s> void pokeBPLCON2(u16 value);
     void setBPLCON2(u16 value);
-    
+
     template <Accessor s> void pokeBPLCON3(u16 value);
     void setBPLCON3(u16 value);
 
     u16 peekCLXDAT();
     u16 spypeekCLXDAT() const;
     void pokeCLXCON(u16 value);
-    
+
     template <isize x, Accessor s> void pokeBPLxDAT(u16 value);
     template <isize x> void setBPLxDAT(u16 value);
 
@@ -701,16 +701,16 @@ public:
     template <isize x> void pokeSPRxCTL(u16 value);
     template <isize x> void pokeSPRxDATA(u16 value);
     template <isize x> void pokeSPRxDATB(u16 value);
-    
+
     template <isize xx, Accessor s> void pokeCOLORxx(u16 value);
-    
-    
+
+
     //
     // Accessing single bits
     //
-    
+
 public:
-    
+
     // BPLCON0
     static bool shres(u16 v) { return GET_BIT(v, 6); }
     bool shres() const { return ham(bplcon0); }
@@ -745,8 +745,8 @@ public:
     u8 enbp2() const { return (u8)((clxcon >> 6) & 0b101010); }
     u8 mvbp1() const { return (u8)(clxcon & 0b010101); }
     u8 mvbp2() const { return (u8)(clxcon & 0b101010); }
-    
-    
+
+
     //
     // Computing derived values
     //

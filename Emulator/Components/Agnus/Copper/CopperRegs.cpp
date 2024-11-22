@@ -37,7 +37,7 @@ Copper::pokeCOPJMP1()
     }
     if constexpr (s == ACCESSOR_CPU) {
 
-        if (agnus.blitter.isActive()) {
+        if (agnus.agnusBlitter.isActive()) {
             xfiles("pokeCOPJMP1: Blitter is running\n");
         }
         switchToCopperList(1);
@@ -56,7 +56,7 @@ Copper::pokeCOPJMP2()
     }
     if constexpr (s == ACCESSOR_CPU) {
 
-        if (agnus.blitter.isActive()) {
+        if (agnus.agnusBlitter.isActive()) {
             xfiles("pokeCOPJMP2: Blitter is running\n");
         }
         switchToCopperList(2);

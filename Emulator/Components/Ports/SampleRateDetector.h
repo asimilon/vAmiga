@@ -49,7 +49,7 @@ public:
 
     using SubComponent::SubComponent;
 
-    SampleRateDetector& operator= (const SampleRateDetector& other) {
+    SampleRateDetector& operator= (const SampleRateDetector& /*other*/) {
 
         return *this;
     }
@@ -71,10 +71,10 @@ private:
 private:
 
     template <class T>
-    void serialize(T& worker)
+    void serialize(T& /*worker*/)
     {
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
     void _didReset(bool hard) override;
 

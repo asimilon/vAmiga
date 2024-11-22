@@ -34,11 +34,11 @@ class HardDrive;
  * See also: MutableFileSystem
  */
 class FileSystem : public CoreObject {
-    
+
     friend struct FSBlock;
     friend struct FSHashTable;
     friend struct FSPartition;
-    
+
 protected:
 
     // File system information
@@ -46,7 +46,7 @@ protected:
 
     // File system version
     FSVolumeType dos = FS_NODOS;
-    
+
     // Block storage
     std::vector<BlockPtr> blocks;
 
@@ -58,30 +58,30 @@ protected:
 
     // Location of the root block
     Block rootBlock = 0;
-    
+
     // Location of the bitmap blocks and extended bitmap blocks
     std::vector<Block> bmBlocks;
     std::vector<Block> bmExtBlocks;
 
     // The currently selected directory (reference to FSDirBlock)
     Block cd = 0;
-    
-    
+
+
     //
     // Initializing
     //
-    
+
 public:
-    
-    FileSystem() { };
+
+    FileSystem() { }
     FileSystem(const MediaFile &file, isize part = 0) throws { init(file, part); }
     FileSystem(const ADFFile &adf) throws { init(adf); }
     FileSystem(const HDFFile &hdn, isize part) throws { init(hdn, part); }
     FileSystem(FloppyDrive &dfn) throws { init(dfn); }
     FileSystem(const HardDrive &hdn, isize part) throws { init(hdn, part); }
 
-    virtual ~FileSystem();
-    
+    virtual ~FileSystem() override;
+
 protected:
 
     void init(const MediaFile &file, isize part) throws;
@@ -92,17 +92,17 @@ protected:
 
     void init(FileSystemDescriptor layout, u8 *buf, isize len) throws;
 
-    
+
     //
     // Methods from CoreObject
     //
-    
+
 protected:
-    
+
     const char *objectName() const override { return "FileSystem"; }
     void _dump(Category category, std::ostream& os) const override;
 
-    
+
     //
     // Querying file system properties
     //
@@ -122,7 +122,7 @@ public:
     isize freeBytes() const { return freeBlocks() * bsize; }
     isize usedBytes() const { return usedBlocks() * bsize; }
     double fillLevel() const { return double(100) * usedBlocks() / numBlocks(); }
-    
+
     // Returns the DOS version
     FSVolumeType getDos() const { return dos; }
     bool isOFS() const { return isOFSVolumeType(dos); }
@@ -132,25 +132,25 @@ public:
     FSName getName() const;
     string getCreationDate() const;
     string getModificationDate() const;
-    
+
     // Analyzes the boot block
     string getBootBlockName() const;
     BootBlockType bootBlockType() const;
     bool hasVirus() const { return bootBlockType() == BB_VIRUS; }
 
-    
+
     //
     // Accessing blocks
     //
-    
+
 public:
-    
+
     // Returns the type of a certain block
     FSBlockType blockType(Block nr) const;
 
     // Returns the usage type of a certain byte in a certain block
     FSItemType itemType(Block nr, isize pos) const;
-    
+
     // Queries a pointer from the block storage (may return nullptr)
     FSBlock *blockPtr(Block nr) const;
 
@@ -164,46 +164,46 @@ public:
     FSBlock *fileListBlockPtr(Block nr) const;
     FSBlock *dataBlockPtr(Block nr) const;
     FSBlock *hashableBlockPtr(Block nr) const;
-    
-    
+
+
     // Reads a single byte from a block
     u8 readByte(Block nr, isize offset) const;
 
     // Returns a portion of the block as an ASCII dump
     string ascii(Block nr, isize offset, isize len) const;
-    
-    
+
+
     //
     // Querying the block allocation bitmap
     //
 
 public:
-    
+
     // Checks if a block is free or allocated
     bool isFree(Block nr) const;
     bool isAllocated(Block nr) const { return !isFree(nr); }
-    
+
 protected:
-    
+
     // Locates the allocation bit for a certain block
     FSBlock *locateAllocationBit(Block nr, isize *byte, isize *bit) const;
-    
-    
+
+
     //
     // Managing directories and files
     //
-    
+
 public:
-    
+
     // Returns the block representing the current directory
     FSBlock *currentDirBlock();
-    
+
     // Changes the current directory
     FSBlock *changeDir(const string &name);
 
     // Prints a directory listing
     void printDirectory(bool recursive) throws;
-    
+
     // Returns the path of a file system item
     string getPath(FSBlock *block);
     string getPath(Block nr) { return getPath(blockPtr(nr)); }
@@ -215,14 +215,14 @@ public:
     FSBlock *seek(const string &name) { return blockPtr(seekRef(name)); }
     FSBlock *seekDir(const string &name) { return userDirBlockPtr(seekRef(name)); }
     FSBlock *seekFile(const string &name) { return fileHeaderBlockPtr(seekRef(name)); }
-    
-    
+
+
     //
     // Integrity checking
     //
 
 public:
-    
+
     // Checks all blocks in this volume
     FSErrorReport check(bool strict) const;
 
@@ -251,19 +251,19 @@ public:
 
     // Returns a reference to the n-th corrupted block
     Block seekCorruptedBlock(isize n);
-    
-    
+
+
     //
     // Traversing the file system
     //
-    
+
 protected:
-    
+
     // Returns a collections of nodes for all items in the current directory
     void collect(Block nr, std::vector<Block> &list, bool recursive = true) const throws;
-    
+
 private:
-    
+
     // Collects all references stored in a hash table
     void collectHashedRefs(Block nr, std::stack<Block> &list,
                            std::set<Block> &visited) const throws;
@@ -272,21 +272,21 @@ private:
     void collectRefsWithSameHashValue(Block nr, std::stack<Block> &list,
                                       std::set<Block> &visited) const throws;
 
-    
+
     //
     // Traversing linked lists
     //
-    
+
 protected:
-    
+
     // Returns the last element in the list of extension blocks
     FSBlock *lastFileListBlockInChain(Block start);
     FSBlock *lastFileListBlockInChain(FSBlock *block);
-    
+
     // Returns the last element in the list of blocks with the same hash
     FSBlock *lastHashBlockInChain(Block start);
     FSBlock *lastHashBlockInChain(FSBlock *block);
-    
+
 
     //
     // GUI helper functions

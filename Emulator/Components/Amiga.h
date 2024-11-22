@@ -77,7 +77,7 @@ class Amiga final : public CoreComponent, public Inspectable<AmigaInfo> {
         OPT_AMIGA_SNAP_DELAY,
         OPT_AMIGA_SNAP_COMPRESS
     };
-    
+
     // The current configuration
     AmigaConfig config = {};
 
@@ -192,7 +192,7 @@ public:
 public:
 
     Amiga(class Emulator& ref, isize id);
-    ~Amiga();
+    ~Amiga() override;
 
 
     //
@@ -262,7 +262,7 @@ public:
         << config.vsync
         << config.speedBoost;
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
 
     //

@@ -103,11 +103,11 @@ public:
 
 public:
 
-    StrWriter(char *p, const DasmStyle &style) : style(style) {
+    StrWriter(char *p, const DasmStyle &_style) : style(_style) {
 
         comment[0] = 0;
         base = ptr = p;
-    };
+    }
 
     StrWriter& operator<<(char);
     StrWriter& operator<<(const char *);

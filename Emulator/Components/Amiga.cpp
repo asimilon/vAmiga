@@ -117,8 +117,8 @@ Amiga::prefix(isize level, const char *component, isize line) const
         if (level >= 4) {
 
             fprintf(stderr, " %06X ", cpu.getPC0());
-            if (agnus.copper.servicing) {
-                fprintf(stderr, " [%06X]", agnus.copper.getCopPC0());
+            if (agnus.agnusCopper.servicing) {
+                fprintf(stderr, " [%06X]", agnus.agnusCopper.getCopPC0());
             }
             fprintf(stderr, " %2X ", cpu.getIPL());
         }
@@ -238,7 +238,7 @@ Amiga::checkOption(Option opt, i64 value)
         case OPT_AMIGA_SNAP_COMPRESS:
 
             return;
-            
+
         default:
             throw Error(VAERROR_OPT_UNSUPPORTED);
     }
@@ -299,7 +299,7 @@ Amiga::setOption(Option option, i64 value)
 
             config.compressSnapshots = bool(value);
             return;
-            
+
         default:
             fatalError;
     }
@@ -484,7 +484,7 @@ Amiga::getAutoInspectionMask() const
     return agnus.data[SLOT_INS];
 }
 
-void 
+void
 Amiga::setAutoInspectionMask(u64 mask)
 {
     if (mask) {
@@ -552,7 +552,7 @@ Amiga::_dump(Category category, std::ostream& os) const
     using namespace util;
 
     if (category == Category::Config) {
-        
+
         dumpConfig(os);
     }
 
@@ -724,13 +724,13 @@ Amiga::_trackOff()
     msgQueue.put(MSG_TRACK, 0);
 }
 
-void 
+void
 Amiga::update(CmdQueue &queue)
 {
     Cmd cmd;
     bool cmdConfig = false;
 
-    auto dfn = [&]() -> FloppyDrive& { return *df[cmd.value]; };
+    auto dfn = [&]() -> FloppyDrive& { return *df[cmd.rawValues.value]; };
 
     // Process all commands
     while (queue.poll(cmd)) {
@@ -801,7 +801,7 @@ Amiga::update(CmdQueue &queue)
                 dfn().processCommand(cmd);
                 break;
 
-                
+
             case CMD_RSH_EXECUTE:
 
                 retroShell.exec();
@@ -809,7 +809,7 @@ Amiga::update(CmdQueue &queue)
 
             case CMD_FOCUS:
 
-                cmd.value ? focus() : unfocus();
+                cmd.rawValues.value ? focus() : unfocus();
                 break;
 
             default:
@@ -889,7 +889,7 @@ Amiga::computeFrame()
             // Did we reach a Copper breakpoint?
             if (flags & RL::COPPERBP_REACHED) {
                 clearFlag(RL::COPPERBP_REACHED);
-                auto addr = u8(agnus.copper.debugger.breakpoints.hit()->addr);
+                auto addr = u8(agnus.agnusCopper.debugger.breakpoints.hit()->addr);
                 msgQueue.put(MSG_COPPERBP_REACHED, CpuMsg { addr, 0 });
                 throw StateChangeException(STATE_PAUSED);
                 break;
@@ -898,7 +898,7 @@ Amiga::computeFrame()
             // Did we reach a Copper watchpoint?
             if (flags & RL::COPPERWP_REACHED) {
                 clearFlag(RL::COPPERWP_REACHED);
-                auto addr = u8(agnus.copper.debugger.watchpoints.hit()->addr);
+                auto addr = u8(agnus.agnusCopper.debugger.watchpoints.hit()->addr);
                 msgQueue.put(MSG_COPPERWP_REACHED, CpuMsg { addr, 0 });
                 throw StateChangeException(STATE_PAUSED);
                 break;
@@ -964,13 +964,13 @@ MediaFile *
 Amiga::takeSnapshot()
 {
     Snapshot *result;
-    
+
     // Take the snapshot
     { SUSPENDED result = new Snapshot(*this); }
-    
+
     // Compress the snapshot if requested
     if (config.compressSnapshots) result->compress();
-    
+
     return result;
 }
 
@@ -1001,7 +1001,7 @@ Amiga::scheduleNextSnpEvent()
     }
 }
 
-void 
+void
 Amiga::loadSnapshot(const MediaFile &file)
 {
     try {
@@ -1023,7 +1023,7 @@ Amiga::loadSnapshot(const Snapshot &snap)
 
     // Uncompress the snapshot
     snapshot.uncompress();
-    
+
     {   SUSPENDED
 
         try {
@@ -1094,7 +1094,7 @@ Amiga::processCommand(const Cmd &cmd)
 
         case CMD_INSPECTION_TARGET:
 
-            setAutoInspectionMask(cmd.value);
+            setAutoInspectionMask(cmd.rawValues.value);
             break;
 
         default:

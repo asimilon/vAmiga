@@ -40,7 +40,7 @@ class Recorder final : public SubComponent {
     //
 
     // Custom audio port for synthesizing the audio track
-    AudioPort audioPort = AudioPort(amiga, 1);
+    AudioPort recorderAudioPort = AudioPort(amiga, 1);
 
 
     //
@@ -104,7 +104,7 @@ public:
 
     Recorder& operator= (const Recorder& other) {
 
-        CLONE(audioPort)
+        CLONE(recorderAudioPort)
         CLONE(audioClock)
 
         return *this;
@@ -125,7 +125,7 @@ public:
             worker << audioClock;
         }
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
 
     //

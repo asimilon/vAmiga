@@ -202,7 +202,7 @@ public:
      * the boot process, the WOM gets locked.
      */
     bool womIsLocked = false;
-    
+
     /* The Amiga memory is divided into 256 banks of size 64KB. The following
      * tables indicate which memory type is seen in each bank by the CPU and
      * Agnus, respectively.
@@ -217,14 +217,14 @@ public:
     // Static buffer for returning textual representations
     // TODO: Replace by "static string str" and make it local
     char str[256];
-    
+
 
     //
     // Methods
     //
 
 public:
-    
+
     Memory(Amiga& ref);
 
     Memory& operator= (const Memory& other) {
@@ -247,7 +247,7 @@ public:
         CLONE(chipMask)
 
         CLONE(config)
-        
+
         return *this;
     }
 
@@ -294,7 +294,7 @@ public:
     void operator << (SerReader &worker) override;
     void operator << (SerWriter &worker) override;
     void _didReset(bool hard) override;
-    
+
 
     //
     // Methods from CoreComponent
@@ -324,18 +324,18 @@ public:
     //
 
 public:
-    
+
     const MemConfig &getConfig() const { return config; }
     const ConfigOptions &getOptions() const override { return options; }
     i64 getOption(Option option) const override;
     void checkOption(Option opt, i64 value) override;
     void setOption(Option option, i64 value) override;
 
-    
+
     //
     // Controlling
     //
-    
+
 private:
 
     void _isReady() const throws override;
@@ -344,7 +344,7 @@ private:
     //
     // Allocating memory
     //
-    
+
 public:
 
     void allocChip(i32 bytes, bool update = true);
@@ -364,7 +364,7 @@ public:
     void deleteExt() { allocExt(0); }
 
 private:
-    
+
     void alloc(Allocator<u8> &allocator, isize bytes, bool update);
     void alloc(Allocator<u8> &allocator, isize bytes, u32 &mask, bool update);
 
@@ -372,7 +372,7 @@ private:
     //
     // Managing RAM
     //
-    
+
 public:
 
     // Check if a certain Ram is present
@@ -387,10 +387,10 @@ public:
     isize ramSize() const { return config.chipSize + config.slowSize + config.fastSize; }
 
 private:
-    
+
     void fillRamWithInitPattern();
 
-    
+
     //
     // Managing ROM
     //
@@ -415,15 +415,15 @@ public:
     bool hasExt() const { return ext != nullptr; }
 
     // Erases an installed Rom
-    void eraseRom() { std::memset(rom, 0, config.romSize); }
-    void eraseWom() { std::memset(wom, 0, config.womSize); }
-    void eraseExt() { std::memset(ext, 0, config.extSize); }
-    
+    void eraseRom() { std::memset(rom, 0, static_cast<size_t>(config.romSize)); }
+    void eraseWom() { std::memset(wom, 0, static_cast<size_t>(config.womSize)); }
+    void eraseExt() { std::memset(ext, 0, static_cast<size_t>(config.extSize)); }
+
     // Installs a Boot Rom or Kickstart Rom
     void loadRom(class MediaFile &file) throws;
     void loadRom(const std::filesystem::path &path) throws;
     void loadRom(const u8 *buf, isize len) throws;
-    
+
     // Installs a Kickstart expansion Rom
     void loadExt(class MediaFile &file) throws;
     void loadExt(const std::filesystem::path &path) throws;
@@ -440,19 +440,19 @@ public:
     // Returns true iff the Rom is a ReKick image
     bool isRelocated();
 
-    
+
     //
     // Maintaining the memory source table
     //
-    
+
 public:
 
     // Returns the memory source for a given address
     template <Accessor A> MemorySource getMemSrc(u32 addr);
-    
+
     // Updates both memory source lookup tables
     void updateMemSrcTables();
-    
+
     // Checks if an address belongs to a certain memory area
     bool inChipRam(u32 addr);
     bool inSlowRam(u32 addr);
@@ -474,7 +474,7 @@ private:
     //
     // Accessing memory
     //
-    
+
 public:
 
     template <Accessor acc, MemorySource src> u8 peek8(u32 addr);
@@ -493,18 +493,18 @@ public:
     template <Accessor acc, MemorySource src> void poke16(u32 addr, u16 value);
     template <Accessor acc> void poke8(u32 addr, u8 value);
     template <Accessor acc> void poke16(u32 addr, u16 value);
-    
+
 
     //
     // Accessing the CIA space
     //
-    
+
     u8 peekCIA8(u32 addr);
     u16 peekCIA16(u32 addr);
-    
+
     u8 spypeekCIA8(u32 addr) const;
     u16 spypeekCIA16(u32 addr) const;
-    
+
     void pokeCIA8(u32 addr, u8 value);
     void pokeCIA16(u32 addr, u16 value);
 
@@ -512,30 +512,30 @@ public:
     //
     // Accessing the RTC space
     //
-    
+
     u8 peekRTC8(u32 addr) const;
     u16 peekRTC16(u32 addr) const;
-    
+
     void pokeRTC8(u32 addr, u8 value);
     void pokeRTC16(u32 addr, u16 value);
 
-    
+
     //
     // Accessing the custom chip space
     //
-    
+
     u16 peekCustom16(u32 addr);
     u16 peekCustomFaulty16(u32 addr);
-    
+
     u16 spypeekCustom16(u32 addr) const;
 
     template <Accessor s> void pokeCustom16(u32 addr, u16 value);
-    
-    
+
+
     //
     // Patching Ram or Rom
     //
-    
+
     // Modifies Ram or Rom without causing side effects
     template <MemorySource src> void patch(u32 addr, u8 value);
     void patch(u32 addr, u8 value);
@@ -555,7 +555,7 @@ public:
     //
     // Debugging
     //
-    
+
 public:
 
     // Searches RAM and ROM for a certain byte sequence

@@ -20,7 +20,7 @@ class Beamtraps : public GuardList {
 public:
 
     Beamtraps(Agnus& ref);
-    virtual ~Beamtraps() { }
+    virtual ~Beamtraps() override { }
 
     void setNeedsCheck(bool value) override;
 

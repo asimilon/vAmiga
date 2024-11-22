@@ -23,7 +23,7 @@ struct ParseError : public std::exception {
     ParseError(const string &t) : token(t) { }
     ParseError(const string &t, const string &e) : token(t), expected(e) { }
 
-    const char *what() const throw() override { return token.c_str(); }
+    const char *what() const noexcept override { return token.c_str(); }
 };
 
 struct ParseBoolError : public ParseError {

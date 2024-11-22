@@ -35,11 +35,11 @@ class Paula final : public SubComponent, public Inspectable<PaulaInfo> {
 
     };
 
-    
+
     //
     // Subcomponents
     //
-    
+
 public:
 
     // Audio state machines
@@ -49,27 +49,27 @@ public:
     StateMachine<3> channel3 = StateMachine<3>(amiga);
 
     // Disk controller
-    DiskController diskController = DiskController(amiga);
+    DiskController paulaDiskController = DiskController(amiga);
 
     // Universal Asynchronous Receiver Transmitter
-    UART uart = UART(amiga);
-    
-    
+    UART paulaUart = UART(amiga);
+
+
     //
     // Counters
     //
-    
+
     // Paula's audio unit has been executed up to this clock cycle
     Cycle audioClock = 0;
-    
-    
+
+
     //
     // Interrupts
     //
-    
+
     // The interrupt request register
     u16 intreq;
-    
+
     // The interrupt enable register
     u16 intena;
 
@@ -79,11 +79,11 @@ public:
     // Value pipe for emulating the delay on the IPL pins
     u64 iplPipe;
 
-    
+
     //
     // Control ports
     //
-    
+
     // The pot control register
     u16 potgo;
 
@@ -102,23 +102,23 @@ public:
     // The Audio and Disk Control Register
     u16 adkcon;
 
-    
+
     //
     // Initializing
     //
-    
+
 public:
 
     Paula(Amiga& ref);
-    
+
     Paula& operator= (const Paula& other) {
 
         CLONE(channel0)
         CLONE(channel1)
         CLONE(channel2)
         CLONE(channel3)
-        CLONE(diskController)
-        CLONE(uart)
+        CLONE(paulaDiskController)
+        CLONE(paulaUart)
 
         CLONE(intreq)
         CLONE(intena)
@@ -172,7 +172,7 @@ private:
 
         << audioClock;
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
 
     //
@@ -208,28 +208,28 @@ public:
     //
     // Methods from Inspectable
     //
-    
+
 public:
-    
+
     void cacheInfo(PaulaInfo &result) const override;
 
 
     //
     // Running the audio unit
     //
-    
+
     void executeUntil(Cycle target);
 
 
     //
     // Managing interrupts
     //
-    
+
 public:
-    
+
     // Signals an interrupt in INTREQ
     void raiseIrq(IrqSource src) { setINTREQ(true, (u16)(1 << src)); }
-    
+
     // Schedules an interrupt
     void scheduleIrqAbs(IrqSource src, Cycle trigger);
     void scheduleIrqRel(IrqSource src, Cycle trigger);
@@ -241,12 +241,12 @@ private:
 
     // Computes the interrupt level of a pending interrupt
     u8 interruptLevel();
-    
-    
+
+
     //
     // Accessing registers
     //
-    
+
 public:
 
     u16 peekADKCONR() const;
@@ -267,11 +267,11 @@ public:
     u16 peekPOTGOR() const;
     void pokePOTGO(u16 value);
 
-    
+
     //
     // Serving events
     //
-    
+
 public:
 
     // Triggers all pending interrupts

@@ -18,11 +18,11 @@ class RamExpansion : public ZorroBoard {
     //
     // Constructing
     //
-    
+
 public:
-    
+
     using ZorroBoard::ZorroBoard;
-    
+
     RamExpansion& operator= (const RamExpansion& other) {
 
         CLONE(baseAddr)
@@ -35,18 +35,18 @@ public:
     //
     // Methods from CoreObject
     //
-    
+
 private:
-    
+
     void _dump(Category category, std::ostream& os) const override;
 
-    
+
     //
     // Methods from CoreComponent
     //
-    
+
 private:
-        
+
     template <class T>
     void serialize(T& worker)
     {
@@ -57,10 +57,10 @@ private:
         << baseAddr
         << state;
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
     void _didReset(bool hard) override;
-    
+
 public:
 
     const Descriptions &getDescriptions() const override { return descriptions; }

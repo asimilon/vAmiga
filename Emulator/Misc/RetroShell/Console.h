@@ -67,7 +67,7 @@ protected:
     //
 
 protected:
-    
+
     // The text storage
     TextStorage storage;
 
@@ -101,7 +101,7 @@ protected:
 public:
 
     using SubComponent::SubComponent;
-    Console& operator= (const Console& other) { return *this; }
+    Console& operator= (const Console& /*other*/) { return *this; }
 
 protected:
 
@@ -118,7 +118,7 @@ protected:
 
 public:
 
-    template <class T> void serialize(T& worker) { } SERIALIZERS(serialize);
+    template <class T> void serialize(T& /*worker*/) { } SERIALIZERS(serialize)
 
 
     //
@@ -131,7 +131,7 @@ public:
 
 protected:
 
-    void _dump(Category category, std::ostream& os) const override { }
+    void _dump(Category /*category*/, std::ostream& /*os*/) const override { }
     void _initialize() override;
 
 

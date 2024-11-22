@@ -31,10 +31,10 @@ struct FileSystemDescriptor {
 
     // Capacity of the file system in blocks
     isize numBlocks = 0;
-    
+
     // Size of a block in bytes
     isize bsize = 512;
-    
+
     // Number of reserved blocks
     isize numReserved = 0;
 
@@ -43,28 +43,28 @@ struct FileSystemDescriptor {
 
     // Location of the root block
     Block rootBlock = 0;
-    
+
     // References to all bitmap blocks and bitmap extension blocks
     std::vector<Block> bmBlocks;
     std::vector<Block> bmExtBlocks;
-    
+
     // Initializing
-    FileSystemDescriptor() { };
+    FileSystemDescriptor() { }
     FileSystemDescriptor(isize numBlocks, FSVolumeType dos);
     FileSystemDescriptor(const GeometryDescriptor &geometry, FSVolumeType dos);
     FileSystemDescriptor(Diameter dia, Density den, FSVolumeType dos);
-    
+
     void init(isize numBlocks, FSVolumeType dos);
     void init(const GeometryDescriptor &geometry, FSVolumeType dos);
     void init(Diameter type, Density density, FSVolumeType dos);
 
     // Computed values
     isize numBytes() const { return numBlocks * bsize; }
-    
+
     // Prints debug information
     void dump() const;
     void dump(std::ostream& os) const;
-    
+
     // Throws an exception if the descriptor contains unsupported values
     void checkCompatibility() const;
 };

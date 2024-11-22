@@ -276,39 +276,39 @@ Moira::writeOp(int n, u32 ea, u32 val)
 void
 Moira::updateAn(Mode M, Size S, int n)
 {
-    if (M == 3) U32_INC(reg.a[n], (n == 7 && S == Byte) ? 2 : S);
-    if (M == 4) U32_DEC(reg.a[n], (n == 7 && S == Byte) ? 2 : S);
+    if (M == 3) U32_INC(reg.dataAddress.a[n], (n == 7 && S == Byte) ? 2 : S);
+    if (M == 4) U32_DEC(reg.dataAddress.a[n], (n == 7 && S == Byte) ? 2 : S);
 }
 
 void
 Moira::updateAnPI(Mode M, Size S, int n)
 {
-    if (M == 3) U32_INC(reg.a[n], (n == 7 && S == Byte) ? 2 : S);
+    if (M == 3) U32_INC(reg.dataAddress.a[n], (n == 7 && S == Byte) ? 2 : S);
 }
 
 void
 Moira::updateAnPD(Mode M, Size S, int n)
 {
-    if (M == 4) U32_DEC(reg.a[n], (n == 7 && S == Byte) ? 2 : S);
+    if (M == 4) U32_DEC(reg.dataAddress.a[n], (n == 7 && S == Byte) ? 2 : S);
 }
 
 void
 Moira::undoAn(Mode M, Size S, int n)
 {
-    if (M == 3) U32_DEC(reg.a[n], (n == 7 && S == Byte) ? 2 : S);
-    if (M == 4) U32_INC(reg.a[n], (n == 7 && S == Byte) ? 2 : S);
+    if (M == 3) U32_DEC(reg.dataAddress.a[n], (n == 7 && S == Byte) ? 2 : S);
+    if (M == 4) U32_INC(reg.dataAddress.a[n], (n == 7 && S == Byte) ? 2 : S);
 }
 
 void
 Moira::undoAnPI(Mode M, Size S, int n)
 {
-    if (M == 3) U32_DEC(reg.a[n], (n == 7 && S == Byte) ? 2 : S);
+    if (M == 3) U32_DEC(reg.dataAddress.a[n], (n == 7 && S == Byte) ? 2 : S);
 }
 
 void
 Moira::undoAnPD(Mode M, Size S, int n)
 {
-    if (M == 4) U32_INC(reg.a[n], (n == 7 && S == Byte) ? 2 : S);
+    if (M == 4) U32_INC(reg.dataAddress.a[n], (n == 7 && S == Byte) ? 2 : S);
 }
 
 template <Mode M, Size S> void
@@ -321,13 +321,13 @@ Moira::updateAn(int n)
 template <Mode M, Size S> void
 Moira::updateAnPI(int n)
 {
-    if constexpr (M == 3) U32_INC(reg.a[n], (n == 7 && S == Byte) ? 2 : S);
+    if constexpr (M == 3) U32_INC(reg.dataAddress.a[n], (n == 7 && S == Byte) ? 2 : S);
 }
 
 template <Mode M, Size S> void
 Moira::updateAnPD(int n)
 {
-    if constexpr (M == 4) U32_DEC(reg.a[n], (n == 7 && S == Byte) ? 2 : S);
+    if constexpr (M == 4) U32_DEC(reg.dataAddress.a[n], (n == 7 && S == Byte) ? 2 : S);
 }
 
 template <Mode M, Size S> void
@@ -340,13 +340,13 @@ Moira::undoAn(int n)
 template <Mode M, Size S> void
 Moira::undoAnPI(int n)
 {
-    if constexpr (M == 3) U32_DEC(reg.a[n], (n == 7 && S == Byte) ? 2 : S);
+    if constexpr (M == 3) U32_DEC(reg.dataAddress.a[n], (n == 7 && S == Byte) ? 2 : S);
 }
 
 template <Mode M, Size S> void
 Moira::undoAnPD(int n)
 {
-    if constexpr (M == 4) U32_INC(reg.a[n], (n == 7 && S == Byte) ? 2 : S);
+    if constexpr (M == 4) U32_INC(reg.dataAddress.a[n], (n == 7 && S == Byte) ? 2 : S);
 }
 
 template <Core C, Mode M, Size S, Flags F> u32
@@ -504,15 +504,15 @@ Moira::readI()
 template <Core C, Size S, Flags F> void
 Moira::push(u32 val)
 {
-    reg.sp -= S;
-    write<C, MEM_DATA, S, F>(reg.sp, val);
+    reg.stackPointer.sp -= S;
+    write<C, MEM_DATA, S, F>(reg.stackPointer.sp, val);
 }
 
 template <Core C, Size S, Flags F> u32
 Moira::pop()
 {
-    u32 result = read<C, MEM_DATA, S, F>(reg.sp);
-    reg.sp += S;
+    u32 result = read<C, MEM_DATA, S, F>(reg.stackPointer.sp);
+    reg.stackPointer.sp += S;
     return result;
 }
 
@@ -644,9 +644,9 @@ Moira::jumpToVector(int nr)
     if (misaligned<C>(reg.pc)) {
 
         if (nr == 3) {
-            
+
             throw DoubleFault();
-            
+
         } else if (C == C68000) {
 
             throw AddressError(makeFrame<F|AE_PROG>(reg.pc, vectorAddr));

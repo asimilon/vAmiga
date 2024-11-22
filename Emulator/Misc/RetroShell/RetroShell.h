@@ -61,7 +61,7 @@ public:
     bool isDirty = false;
 
 private:
-    
+
     // Command queue (stores all pending commands)
     std::vector<QueuedCmd> commands;
 
@@ -79,7 +79,7 @@ private:
 public:
 
     RetroShell(Amiga& ref);
-    RetroShell& operator= (const RetroShell& other) { return *this; }
+    RetroShell& operator= (const RetroShell& /*other*/) { return *this; }
 
 
     //
@@ -88,7 +88,7 @@ public:
 
 public:
 
-    template <class T> void serialize(T& worker) { } SERIALIZERS(serialize);
+    template <class T> void serialize(T& /*worker*/) { } SERIALIZERS(serialize)
 
 
     //
@@ -101,7 +101,7 @@ public:
 
 private:
 
-    void _dump(Category category, std::ostream& os) const override { }
+    void _dump(Category /*category*/, std::ostream& /*os*/) const override { }
     void _initialize() override;
 
 
@@ -140,7 +140,7 @@ public:
 
     // Aborts the execution of a script
     void abortScript();
-    
+
     // Executes all pending commands
     void exec() throws;
 
@@ -148,14 +148,14 @@ private:
 
     // Executes a single pending command
     void exec(QueuedCmd cmd) throws;
-    
+
 
     //
     // Bridge functions
     //
 
 public:
-    
+
     RetroShell &operator<<(char value);
     RetroShell &operator<<(const string &value);
     RetroShell &operator<<(int value);
@@ -172,7 +172,7 @@ public:
     void press(char c);
     void press(const string &s);
     void setStream(std::ostream &os);
- 
+
     void serviceEvent();
 };
 

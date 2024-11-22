@@ -42,8 +42,7 @@ public:
 
     using SubComponent::SubComponent;
 
-    MemoryDebugger& operator= (const Host& other) {
-
+    MemoryDebugger& operator= (const Host& /*other*/) {
         return *this;
     }
 
@@ -54,7 +53,7 @@ public:
 
 public:
 
-    template <class T> void serialize(T& worker) { } SERIALIZERS(serialize);
+    template <class T> void serialize(T& /*worker*/) { } SERIALIZERS(serialize)
 
 
     //
@@ -67,7 +66,7 @@ public:
 
 private:
 
-    void _dump(Category category, std::ostream& os) const override { };
+    void _dump(Category /*category*/, std::ostream& /*os*/) const override { }
 
 
     //
@@ -84,7 +83,7 @@ public:
     //
 
 public:
-    
+
     // Returns a memory dump in ASCII, hex, or both
     template <Accessor A> const char *ascDump(u32 addr, isize bytes) const;
     template <Accessor A> const char *hexDump(u32 addr, isize bytes, isize sz = 1) const;

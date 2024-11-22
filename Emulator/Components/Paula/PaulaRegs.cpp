@@ -47,7 +47,7 @@ Paula::pokeADKCON(u16 value)
     if (set) adkcon |= (value & 0x7FFF); else adkcon &= ~value;
 
     // Take care of a possible change of the UARTBRK bit
-    uart.updateTXD();
+    paulaUart.updateTXD();
 
     if (adkcon & 0b1110111) {
         trace(AUDREG_DEBUG, "ADKCON MODULATION: %x\n", adkcon);

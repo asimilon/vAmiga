@@ -30,7 +30,7 @@ public:
 struct AutoResume {
 
     Suspendable *s;
-    AutoResume(Suspendable *s) : s(s) { s->suspend(); }
+    AutoResume(Suspendable *_s) : s(_s) { s->suspend(); }
     ~AutoResume() { s->resume(); }
 };
 

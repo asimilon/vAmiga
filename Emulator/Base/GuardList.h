@@ -44,8 +44,8 @@ protected:
 
 public:
 
-    GuardList(Emulator &emu) : emu(emu), guards(_guards) { }
-    GuardList(Emulator &emu, moira::Guards &guards) : emu(emu), guards(guards) { }
+    GuardList(Emulator &_emu) : emu(_emu), guards(_guards) { }
+    GuardList(Emulator &_emu, moira::Guards &guardsToUse) : emu(_emu), guards(guardsToUse) { }
     virtual ~GuardList() { }
 
 
@@ -108,7 +108,7 @@ public:
 
 public:
 
-    virtual void setNeedsCheck(bool value) { };
+    virtual void setNeedsCheck(bool /*value*/) { }
 
 
     //

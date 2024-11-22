@@ -307,7 +307,7 @@ DebugConsole::initCommands(Command &root)
                      "List all beamtraps",
                      [this](Arguments& argv, long value) {
 
-                dump(agnus.dmaDebugger, Category::Beamtraps);
+                dump(agnus.agnusDmaDebugger, Category::Beamtraps);
             });
 
             root.add({"btrap", "at"}, { Arg::value, Arg::value }, { Arg::ignores },
@@ -316,21 +316,21 @@ DebugConsole::initCommands(Command &root)
 
                 auto v = parseNum(argv[0]);
                 auto h = parseNum(argv[1]);
-                agnus.dmaDebugger.beamtraps.setAt(HI_W_LO_W(v, h), parseNum(argv, 2, 0));
+                agnus.agnusDmaDebugger.beamtraps.setAt(HI_W_LO_W(v, h), parseNum(argv, 2, 0));
             });
 
             root.add({"btrap", "delete"}, { Arg::value },
                      "Delete a beamtrap",
                      [this](Arguments& argv, long value) {
 
-                agnus.dmaDebugger.beamtraps.remove(parseNum(argv[0]));
+                agnus.agnusDmaDebugger.beamtraps.remove(parseNum(argv[0]));
             });
 
             root.add({"btrap", "toggle"}, { Arg::value },
                      "Enable or disable a beamtrap",
                      [this](Arguments& argv, long value) {
 
-                agnus.dmaDebugger.beamtraps.toggle(parseNum(argv[0]));
+                agnus.agnusDmaDebugger.beamtraps.toggle(parseNum(argv[0]));
             });
         }
     }
@@ -620,8 +620,8 @@ DebugConsole::initCommands(Command &root)
 
                     switch (nr) {
 
-                        case 1: dump(amiga.agnus.copper, Category::List1); break;
-                        case 2: dump(amiga.agnus.copper, Category::List2); break;
+                        case 1: dump(amiga.agnus.agnusCopper, Category::List1); break;
+                        case 2: dump(amiga.agnus.agnusCopper, Category::List2); break;
 
                         default:
                             throw Error(VAERROR_OPT_INV_ARG, "1 or 2");

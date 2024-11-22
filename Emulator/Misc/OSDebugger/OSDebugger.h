@@ -16,7 +16,7 @@
 namespace vamiga {
 
 class OSDebugger final : public SubComponent {
-    
+
     Descriptions descriptions = {{
 
         .type           = OSDebuggerClass,
@@ -30,16 +30,16 @@ class OSDebugger final : public SubComponent {
     };
 
 private:
-    
+
     //
     // Constructing
     //
-    
+
 public:
-    
+
     using SubComponent::SubComponent;
-    
-    OSDebugger& operator= (const OSDebugger& other) {
+
+    OSDebugger& operator= (const OSDebugger& /*other*/) {
 
         return *this;
     }
@@ -48,16 +48,16 @@ public:
     //
     // Methods from CoreObject
     //
-    
-private:
-    
-    void _dump(Category category, std::ostream& os) const override { }
 
-    
+private:
+
+    void _dump(Category /*category*/, std::ostream& /*os*/) const override { }
+
+
     //
     // Methods from CoreComponent
     //
-    
+
 public:
 
     const Descriptions &getDescriptions() const override { return descriptions; }
@@ -75,21 +75,21 @@ public:
     //
     // Serializing
     //
-    
-    template <class T> void serialize(T& worker) { } SERIALIZERS(serialize);
-        
+
+    template <class T> void serialize(T& /*worker*/) { } SERIALIZERS(serialize)
+
 
     //
     // Providing textual representations
     //
 
 public:
-    
+
     static string dosTypeStr(u32 type);
     static string dosVersionStr(u32 version);
 
 private:
-    
+
     string toString(os::LnType value) const;
     string toString(os::TState value) const;
     string toString(os::SigFlags value) const;
@@ -99,23 +99,23 @@ private:
     string toString(os::PrFlags value) const;
 
     void append(string &str, const char *cstr) const;
-    
-    
+
+
     //
     // Managing pointers
     //
-    
+
 public:
-    
+
     bool isRamPtr(u32 addr) const;
     bool isRamOrRomPtr(u32 addr) const;
     bool isValidPtr(u32 addr) const;
 
-    
+
     //
     // Extracting elementary data types from Amiga memory
     //
-    
+
 public:
 
     void read(u32 addr, u8 *result) const;
@@ -127,7 +127,7 @@ public:
     void read(u32 addr, string &result) const;
     void read(u32 addr, string &result, isize limit) const;
 
-    
+
     //
     // Extracting basic structures from Amiga memory
     //
@@ -135,7 +135,7 @@ public:
 public:
 
     os::ExecBase getExecBase() const throws;
-    
+
     void read(u32 addr, os::CommandLineInterface *result) const;
     void read(u32 addr, os::ExecBase *result) const;
     void read(u32 addr, os::FileSysResource *result) const;
@@ -152,14 +152,14 @@ public:
     void read(u32 addr, os::Process *result) const;
     void read(u32 addr, os::SoftIntList *result) const;
     void read(u32 addr, os::Task *result) const;
-    
-    
+
+
     //
     // Extracting nested structures from Amiga memory
     //
 
 public:
-    
+
     void read(u32 addr, std::vector <os::FileSysEntry> &result) const;
     void read(std::vector <os::Task> &result) const;
     void read(std::vector <os::Process> &result) const;
@@ -169,11 +169,11 @@ public:
     void read(const os::Process &pr, os::SegList &result) const;
     void read(u32 addr, os::SegList &result) const;
 
-    
+
     //
     // Searches a structure by value (address or index), or name
     //
-    
+
     bool searchLibrary(u32 addr, os::Library &result) const;
     bool searchLibrary(const string &name, os::Library &result) const;
 
@@ -189,23 +189,23 @@ public:
     bool searchProcess(u32 addr, os::Process &result) const;
     bool searchProcess(const string &name, os::Process &result) const;
 
-    
+
     //
     // Performing sanity checks
     //
-    
+
     void checkExecBase(const os::ExecBase &execBase) const throws;
-    
+
 
     //
     // Printing system information
     //
 
 public:
-    
+
     void dumpInfo(std::ostream& s);
     void dumpExecBase(std::ostream& s);
-    
+
     void dumpIntVectors(std::ostream& s);
     void dumpIntVector(std::ostream& s, const os::IntVector &intVector);
 
@@ -228,7 +228,7 @@ public:
     void dumpTask(std::ostream& s, u32 addr);
     void dumpTask(std::ostream& s, const string &name);
     void dumpTask(std::ostream& s, const os::Task &task, bool verbose);
-    
+
     void dumpProcesses(std::ostream& s);
     void dumpProcess(std::ostream& s, u32 addr);
     void dumpProcess(std::ostream& s, const string &name);

@@ -102,7 +102,7 @@ public:
     bool enablePenlo = false;
     bool enablePenhi = false;
 
-    
+
     //
     // Initializing
     //
@@ -136,9 +136,9 @@ public:
     //
     // Methods from Serializable
     //
-    
+
 private:
-        
+
     template <class T>
     void serialize(T& worker)
     {
@@ -165,7 +165,7 @@ private:
 
         << clock;
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
 
     //
@@ -262,8 +262,8 @@ public:
 
     // Transfers a DMA request to Agnus (done in the first refresh cycle)
     void requestDMA() { if (audDR) { agnus.setAudxDR<nr>(); audDR = 0; } }
-    
-    
+
+
     //
     // Performing state machine transitions
     //
@@ -281,7 +281,7 @@ private:
     void move_010_000();
     void move_011_010();
 
-    
+
     //
     // Accessing registers
     //
@@ -294,7 +294,7 @@ public:
     void pokeAUDxVOL(u16 value);
     void pokeAUDxDAT(u16 value);
 
-    
+
     //
     // Servicing events
     //

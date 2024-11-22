@@ -28,7 +28,7 @@ TOD::operator << (SerResetter &worker)
 
         stopped = true;
         matching = true;
-        tod.hi = 0x1;
+        tod.parts.hi = 0x1;
     }
 }
 
@@ -36,26 +36,26 @@ void
 TOD::cacheInfo(TODInfo &info) const
 {
     {   SYNCHRONIZED
-        
+
         info.value = tod.value;
         info.latch = latch.value;
         info.alarm = alarm.value;
     }
 }
 
-void 
+void
 TOD::_dump(Category category, std::ostream& os) const
 {
     using namespace util;
-    
+
     if (category == Category::State) {
-        
+
         os << tab("Counter");
-        os << hex(tod.hi) << ":" << hex(tod.mid) << ":" << hex(tod.lo) << std::endl;
+        os << hex(tod.parts.hi) << ":" << hex(tod.parts.mid) << ":" << hex(tod.parts.lo) << std::endl;
         os << tab("Alarm");
-        os << hex(alarm.hi) << ":" << hex(alarm.mid) << ":" << hex(alarm.lo) << std::endl;
+        os << hex(alarm.parts.hi) << ":" << hex(alarm.parts.mid) << ":" << hex(alarm.parts.lo) << std::endl;
         os << tab("Latch");
-        os << hex(latch.hi) << ":" << hex(latch.mid) << ":" << hex(latch.lo) << std::endl;
+        os << hex(latch.parts.hi) << ":" << hex(latch.parts.mid) << ":" << hex(latch.parts.lo) << std::endl;
         os << tab("Frozen");
         os << bol(frozen) << std::endl;
         os << tab("Stopped");
@@ -66,7 +66,7 @@ TOD::_dump(Category category, std::ostream& os) const
 u8
 TOD::getCounterHi(Cycle timeStamp) const
 {
-    u8 result = frozen ? latch.hi : timeStamp > lastInc ? tod.hi : preTod.hi;
+    u8 result = frozen ? latch.parts.hi : timeStamp > lastInc ? tod.parts.hi : preTod.parts.hi;
 
     trace(TOD_DEBUG, "getCounterHi: %02x\n", result);
     return result;
@@ -75,8 +75,8 @@ TOD::getCounterHi(Cycle timeStamp) const
 u8
 TOD::getCounterMid(Cycle timeStamp) const
 {
-    u8 result = frozen ? latch.mid : timeStamp > lastInc ? tod.mid : preTod.mid;
-    
+    u8 result = frozen ? latch.parts.mid : timeStamp > lastInc ? tod.parts.mid : preTod.parts.mid;
+
     trace(TOD_DEBUG, "getCounterMid: %02x\n", result);
     return result;
 }
@@ -84,8 +84,8 @@ TOD::getCounterMid(Cycle timeStamp) const
 u8
 TOD::getCounterLo(Cycle timeStamp) const
 {
-    u8 result = frozen ? latch.lo : timeStamp > lastInc ? tod.lo : preTod.lo;
-    
+    u8 result = frozen ? latch.parts.lo : timeStamp > lastInc ? tod.parts.lo : preTod.parts.lo;
+
     trace(TOD_DEBUG, "getCounterLo: %02x\n", result);
     return result;
 }
@@ -93,30 +93,30 @@ TOD::getCounterLo(Cycle timeStamp) const
 u8
 TOD::getAlarmHi() const
 {
-    trace(TOD_DEBUG, "getAlarmHi: %02x\n", alarm.hi);
-    return alarm.hi;
+    trace(TOD_DEBUG, "getAlarmHi: %02x\n", alarm.parts.hi);
+    return alarm.parts.hi;
 }
 
 u8
 TOD::getAlarmMid() const
 {
-    trace(TOD_DEBUG, "getAlarmMid: %02x\n", alarm.mid);
-    return alarm.mid;
+    trace(TOD_DEBUG, "getAlarmMid: %02x\n", alarm.parts.mid);
+    return alarm.parts.mid;
 }
 
 u8
 TOD::getAlarmLo() const
 {
-    trace(TOD_DEBUG, "getAlarmLo: %02x\n", alarm.lo);
-    return alarm.lo;
+    trace(TOD_DEBUG, "getAlarmLo: %02x\n", alarm.parts.lo);
+    return alarm.parts.lo;
 }
 
 void
 TOD::setCounterHi(u8 value)
 {
     trace(TOD_DEBUG, "setCounterHi(%x)\n", value);
-    tod.hi = value;
-    
+    tod.parts.hi = value;
+
     checkIrq();
 }
 
@@ -124,8 +124,8 @@ void
 TOD::setCounterMid(u8 value)
 {
     trace(TOD_DEBUG, "setCounterMid(%x)\n", value);
-    tod.mid = value;
-    
+    tod.parts.mid = value;
+
     checkIrq();
 }
 
@@ -133,8 +133,8 @@ void
 TOD::setCounterLo(u8 value)
 {
     trace(TOD_DEBUG, "setCounterLo(%x)\n", value);
-    tod.lo = value;
-    
+    tod.parts.lo = value;
+
     checkIrq();
 }
 
@@ -142,8 +142,8 @@ void
 TOD::setAlarmHi(u8 value)
 {
     trace(TOD_DEBUG, "setAlarmHi(%x)\n", value);
-    alarm.hi = value;
-    
+    alarm.parts.hi = value;
+
     checkIrq();
 }
 
@@ -151,8 +151,8 @@ void
 TOD::setAlarmMid(u8 value)
 {
     trace(TOD_DEBUG, "setAlarmMid(%x)\n", value);
-    alarm.mid = value;
-    
+    alarm.parts.mid = value;
+
     checkIrq();
 }
 
@@ -160,8 +160,8 @@ void
 TOD::setAlarmLo(u8 value)
 {
     trace(TOD_DEBUG, "setAlarmLo(%x)\n", value);
-    alarm.lo = value;
-    
+    alarm.parts.lo = value;
+
     checkIrq();
 }
 
@@ -173,19 +173,19 @@ TOD::increment()
     preTod = tod;
     lastInc = cia.clock;
 
-    if (!incLoNibble(tod.lo))  goto check;
-    if (!incHiNibble(tod.lo))  goto check;
-    if (!incLoNibble(tod.mid)) goto check;
+    if (!incLoNibble(tod.parts.lo))  goto check;
+    if (!incHiNibble(tod.parts.lo))  goto check;
+    if (!incLoNibble(tod.parts.mid)) goto check;
 
     if (tod.value == alarm.value) {
         trace(TOD_DEBUG, "TOD bug hits: %x:%x:%x (%d,%d)\n",
-              tod.hi, tod.mid, tod.lo, frozen, stopped);
+              tod.parts.hi, tod.parts.mid, tod.parts.lo, frozen, stopped);
     }
     if (cia.config.todBug) checkIrq();
 
-    if (!incHiNibble(tod.mid)) goto check;
-    if (!incLoNibble(tod.hi))  goto check;
-    incHiNibble(tod.hi);
+    if (!incHiNibble(tod.parts.mid)) goto check;
+    if (!incLoNibble(tod.parts.hi))  goto check;
+    incHiNibble(tod.parts.hi);
 
 check:
     checkIrq();
@@ -215,8 +215,8 @@ void
 TOD::checkIrq()
 {
     if (!matching && tod.value == alarm.value) {
-        
-        trace(TOD_DEBUG, "TOD IRQ (%02x:%02x:%02x)\n", tod.hi, tod.mid, tod.lo);
+
+        trace(TOD_DEBUG, "TOD IRQ (%02x:%02x:%02x)\n", tod.parts.hi, tod.parts.mid, tod.parts.lo);
         cia.todInterrupt();
     }
     matching = (tod.value == alarm.value);

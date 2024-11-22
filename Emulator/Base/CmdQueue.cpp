@@ -17,12 +17,12 @@ CmdQueue::put(const Cmd &cmd)
 {
     {   SYNCHRONIZED
 
-        debug(CMD_DEBUG, "%s [%llx]\n", CmdTypeEnum::key(cmd.type), cmd.value);
+        debug(CMD_DEBUG, "%s [%llx]\n", CmdTypeEnum::key(cmd.type), cmd.rawValues.value);
 
         if (!queue.isFull()) {
             queue.write(cmd);
         } else {
-            warn("Command lost: %s [%llx]\n", CmdTypeEnum::key(cmd.type), cmd.value);
+            warn("Command lost: %s [%llx]\n", CmdTypeEnum::key(cmd.type), cmd.rawValues.value);
         }
 
         empty = false;
@@ -44,4 +44,3 @@ CmdQueue::poll(Cmd &cmd)
 }
 
 }
-

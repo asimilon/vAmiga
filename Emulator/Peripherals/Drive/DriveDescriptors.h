@@ -25,7 +25,7 @@ struct GeometryDescriptor : Serializable {
     static constexpr isize hMax = HDR_H_MAX;
     static constexpr isize sMin = HDR_S_MIN;
     static constexpr isize sMax = HDR_S_MAX;
-    
+
     // Disk geometry (CHS)
     isize cylinders = 0;
     isize heads = 0;
@@ -44,7 +44,7 @@ struct GeometryDescriptor : Serializable {
         << sectors
         << bsize;
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
 
     // Returns a vector with compatible geometries for a given block count
@@ -53,9 +53,9 @@ struct GeometryDescriptor : Serializable {
 
     // Checks whether the geometry is unique
     bool unique() const;
-    
+
     // Initializers
-    GeometryDescriptor() { };
+    GeometryDescriptor() { }
     GeometryDescriptor(isize size);
     GeometryDescriptor(isize c, isize h, isize s, isize b);
     GeometryDescriptor(Diameter type, Density density);
@@ -120,11 +120,11 @@ struct PartitionDescriptor : Serializable {
         << bootPri
         << dosType;
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
 
     // Initializers
-    PartitionDescriptor() { };
+    PartitionDescriptor() { }
     PartitionDescriptor(const GeometryDescriptor &geo);
 
     // Prints debug information
@@ -154,16 +154,16 @@ struct DriverDescriptor : Serializable {
         << blocks
         << segList;
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
 
     // Initializers
-    DriverDescriptor() { };
+    DriverDescriptor() { }
 
     // Prints debug information
     void dump() const;
     void dump(std::ostream& os) const;
-    
+
     // Throws an exception if inconsistent or unsupported values are present
     void checkCompatibility() const;
 };

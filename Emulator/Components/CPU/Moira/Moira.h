@@ -393,17 +393,17 @@ public:
     u16 getSR() const;
     void setSR(u16 val);
 
-    u32 getSP() const { return reg.sp; }
-    void setSP(u32 val) { reg.sp = val; }
+    u32 getSP() const { return reg.stackPointer.sp; }
+    void setSP(u32 val) { reg.stackPointer.sp = val; }
 
-    u32 getUSP() const { return !reg.sr.s ? reg.sp : reg.usp; }
-    void setUSP(u32 val) { if (!reg.sr.s) reg.sp = val; else reg.usp = val; }
+    u32 getUSP() const { return !reg.sr.s ? reg.stackPointer.sp : reg.usp; }
+    void setUSP(u32 val) { if (!reg.sr.s) reg.stackPointer.sp = val; else reg.usp = val; }
 
-    u32 getISP() const { return (reg.sr.s && !reg.sr.m) ? reg.sp : reg.isp; }
-    void setISP(u32 val) { if (reg.sr.s && !reg.sr.m) reg.sp = val; else reg.isp = val; }
+    u32 getISP() const { return (reg.sr.s && !reg.sr.m) ? reg.stackPointer.sp : reg.isp; }
+    void setISP(u32 val) { if (reg.sr.s && !reg.sr.m) reg.stackPointer.sp = val; else reg.isp = val; }
 
-    u32 getMSP() const { return (reg.sr.s && reg.sr.m) ? reg.sp : reg.msp; }
-    void setMSP(u32 val) { if (reg.sr.s && reg.sr.m) reg.sp = val; else reg.msp = val; }
+    u32 getMSP() const { return (reg.sr.s && reg.sr.m) ? reg.stackPointer.sp : reg.msp; }
+    void setMSP(u32 val) { if (reg.sr.s && reg.sr.m) reg.stackPointer.sp = val; else reg.msp = val; }
 
     u32 getVBR() const { return reg.vbr; }
     void setVBR(u32 val) { reg.vbr = val; }

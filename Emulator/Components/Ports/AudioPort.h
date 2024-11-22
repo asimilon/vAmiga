@@ -81,7 +81,7 @@ class AudioPort final : public SubComponent {
 
     // Current configuration
     AudioPortConfig config = {};
-    
+
     // Underflow and overflow counters
     AudioPortStats stats = {};
 
@@ -93,7 +93,7 @@ class AudioPort final : public SubComponent {
 
     // Time stamp of the last write pointer alignment
     util::Time lastAlignment = util::Time::now();
-    
+
     // Channel volumes
     float vol[4] = { };
 
@@ -111,12 +111,12 @@ class AudioPort final : public SubComponent {
     //
     // Subcomponents
     //
-    
+
 public:
 
     // Inputs (one Sampler for each of the four channels)
     Sampler sampler[4] = {
-        
+
         Sampler(),
         Sampler(),
         Sampler(),
@@ -136,15 +136,15 @@ public:
     //
     // Methods
     //
-    
+
 public:
-    
+
     AudioPort(Amiga& ref, isize objid = 0);
 
     AudioPort& operator= (const AudioPort& other) {
 
         CLONE(filter)
-        
+
         CLONE(config)
         CLONE_ARRAY(pan)
         CLONE_ARRAY(vol)
@@ -158,11 +158,11 @@ public:
     // Resets the output buffer and the two audio filters
     void clear();
 
-    
+
     //
     // Methods from Serializable
     //
-    
+
 private:
 
     template <class T>
@@ -183,7 +183,7 @@ private:
         << volL.maximum
         << volR.maximum;
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
 
     //
@@ -214,7 +214,7 @@ private:
     //
 
 public:
-    
+
     const AudioPortConfig &getConfig() const { return config; }
     const ConfigOptions &getOptions() const override { return options; }
     i64 getOption(Option option) const override;
@@ -227,9 +227,9 @@ public:
     //
     // Analyzing
     //
-    
+
 public:
-    
+
     // Returns information about the gathered statistical information
     const AudioPortStats &getStats() const { return stats; }
 
@@ -240,7 +240,7 @@ public:
     //
     // Generating audio streams
     //
-    
+
 public:
 
     // Entry point for the screen recorder
@@ -261,9 +261,9 @@ private:
     // Handles a buffer underflow or overflow condition
     void handleBufferUnderflow();
     void handleBufferOverflow();
-    
+
 public:
-    
+
     // Signals to ignore the next underflow or overflow condition
     void ignoreNextUnderOrOverflow();
 
@@ -287,9 +287,9 @@ public:
     //
     // Reading audio samples
     //
-    
+
 public:
-    
+
     /* Copies n audio samples into a memory buffer. These functions mark the
      * final step in the audio pipeline. They are used to copy the generated
      * sound samples into the buffers of the native sound device. The function

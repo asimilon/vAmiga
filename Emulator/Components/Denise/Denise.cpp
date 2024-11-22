@@ -20,7 +20,7 @@ Denise::Denise(Amiga& ref) : SubComponent(ref)
 {    
     subComponents = std::vector<CoreComponent *> {
         
-        &pixelEngine,
+        &denisePixelEngine,
         &screenRecorder
     };
 }
@@ -1242,7 +1242,7 @@ Denise::vsyncHandler()
 {
     hflop = true; // ???
     markBorderBufferAsDirty();
-    pixelEngine.vsyncHandler();
+    denisePixelEngine.vsyncHandler();
     debugger.vsyncHandler();
 }
 
@@ -1272,17 +1272,17 @@ Denise::hsyncHandler(isize vpos)
         if (config.clxPlfPlf) checkP2PCollisions();
 
         // Synthesize RGBA values and write the result into the frame buffer
-        pixelEngine.colorize(vpos);
+        denisePixelEngine.colorize(vpos);
 
         // Remove certain graphics layers if requested
         if (config.hiddenLayers) {
-            pixelEngine.hide(vpos, config.hiddenLayers, config.hiddenLayerAlpha);
+            denisePixelEngine.hide(vpos, config.hiddenLayers, config.hiddenLayerAlpha);
         }
         
     } else {
         
         drawSprites();
-        pixelEngine.replayColRegChanges();
+        denisePixelEngine.replayColRegChanges();
         conChanges.clear();
     }
 
@@ -1295,7 +1295,7 @@ Denise::hsyncHandler(isize vpos)
     assert(diwChanges.isEmpty());
     
     // Clear the last pixel if this line was a short line
-    if (agnus.pos.hLatched == HPOS_CNT_PAL) pixelEngine.getWorkingBuffer().clear(vpos, HPOS_MAX);
+    if (agnus.pos.hLatched == HPOS_CNT_PAL) denisePixelEngine.getWorkingBuffer().clear(vpos, HPOS_MAX);
 
     // Clear the dBuffer
     std::memset(dBuffer, 0, sizeof(dBuffer));
@@ -1329,13 +1329,13 @@ Denise::eofHandler()
     // In this area, the border mask has to be rebuild in each line.
     if (isOCS()) markBorderBufferAsDirty(10);
 
-    pixelEngine.eofHandler();
+    denisePixelEngine.eofHandler();
     debugger.eofHandler();
 
     // Run the frame skip logic
     if (frameSkips == 0) {
 
-        pixelEngine.swapBuffers();
+        denisePixelEngine.swapBuffers();
         frameSkips = emulator.isWarping() ? config.frameSkipping : 0;
 
     } else {

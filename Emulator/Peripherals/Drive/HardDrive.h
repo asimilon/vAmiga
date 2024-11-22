@@ -19,7 +19,7 @@
 namespace vamiga {
 
 class HardDrive final : public Drive, public Inspectable<HardDriveInfo> {
-    
+
     Descriptions descriptions = {
         {
             .type           = HardDriveClass,
@@ -50,20 +50,20 @@ class HardDrive final : public Drive, public Inspectable<HardDriveInfo> {
     ConfigOptions options = {
 
         OPT_HDR_TYPE,
-        OPT_HDR_WRITE_THROUGH, 
+        OPT_HDR_WRITE_THROUGH,
         OPT_HDR_PAN,
         OPT_HDR_STEP_VOLUME
     };
-    
+
     friend class HDFFile;
     friend class HdController;
 
     // Write-through storage files
     static std::fstream wtStream[4];
-    
+
     // Current configuration
     HardDriveConfig config = {};
-    
+
     // Product information
     string diskVendor;
     string diskProduct;
@@ -74,7 +74,7 @@ class HardDrive final : public Drive, public Inspectable<HardDriveInfo> {
 
     // Hard disk geometry
     GeometryDescriptor geometry;
-    
+
     // Partition table
     std::vector <PartitionDescriptor> ptable;
 
@@ -83,7 +83,7 @@ class HardDrive final : public Drive, public Inspectable<HardDriveInfo> {
 
     // Disk data
     Buffer<u8> data;
-    
+
     // Keeps track of modified blocks (to update the run-ahead instance)
     Buffer<bool> dirty;
 
@@ -92,12 +92,12 @@ class HardDrive final : public Drive, public Inspectable<HardDriveInfo> {
 
     // Current drive state
     HardDriveState state = HDR_IDLE;
-    
+
     // Disk state flags
     DiskFlags flags = 0;
     optional <bool> bootable;
 
-    
+
     //
     // Initializing
     //
@@ -105,8 +105,8 @@ class HardDrive final : public Drive, public Inspectable<HardDriveInfo> {
 public:
 
     HardDrive(Amiga& ref, isize nr);
-    ~HardDrive();
-    
+    ~HardDrive() override;
+
     HardDrive& operator= (const HardDrive& other);
 
     // Creates a hard drive with a certain geometry
@@ -132,7 +132,7 @@ public:
         static HardDriveTraits traits;
 
         traits.nr = objid;
-        
+
         traits.diskVendor = diskVendor.c_str();
         traits.diskProduct = diskProduct.c_str();
         traits.diskRevision = diskRevision.c_str();
@@ -173,24 +173,24 @@ private:
     // Restors the initial state
     void init();
 
-    
+
     //
     // Methods from CoreObject
     //
-    
+
 private:
-    
+
     void _dump(Category category, std::ostream& os) const override;
-    
-    
+
+
     //
     // Methods from CoreComponent
     //
-    
+
 private:
-    
+
     void _initialize() override;
-    
+
     template <class T>
     void serialize(T& worker)
     {
@@ -223,7 +223,7 @@ private:
         << flags
         << bootable;
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
     void _didReset(bool hard) override;
     void _didLoad() override;
@@ -232,13 +232,13 @@ public:
 
     const Descriptions &getDescriptions() const override { return descriptions; }
 
-    
+
     //
     // Methods from Drive
     //
-    
+
 public:
-    
+
     string getDiskVendor() const override { return diskVendor; }
     string getDiskProduct() const override { return diskProduct; }
     string getDiskRevision() const override { return diskRevision; }
@@ -261,25 +261,25 @@ public:
     void setModificationFlag(bool value) override;
     void setProtectionFlag(bool value) override;
 
-    
+
     //
     // Methods from Configurable
     //
 
 public:
-    
+
     const HardDriveConfig &getConfig() const { return config; }
     const ConfigOptions &getOptions() const override { return options; }
     i64 getOption(Option option) const override;
     void checkOption(Option opt, i64 value) override;
     void setOption(Option option, i64 value) override;
-    
+
 private:
-    
+
     void connect();
     void disconnect();
 
-    
+
     //
     // Analyzing
     //
@@ -305,7 +305,7 @@ public:
 
     // Returns the current drive state
     HardDriveState getState() const { return state; }
-    
+
     // Gets or sets the 'modification' flag
     bool isModified() const { return flags & FLAG_MODIFIED; }
     void setModified(bool value) { value ? flags |= FLAG_MODIFIED : flags &= ~FLAG_MODIFIED; }
@@ -315,12 +315,12 @@ public:
 
     // Checks whether the drive will work with the currently installed Rom
     bool isCompatible() const;
-    
-    
+
+
     //
     // Formatting
     //
-    
+
     // Returns a default volume name
     string defaultName(isize partition = 0) const;
 
@@ -330,23 +330,23 @@ public:
     // Change the drive geometry
     void changeGeometry(isize c, isize h, isize s, isize b = 512) throws;
     void changeGeometry(const GeometryDescriptor &geometry) throws;
-    
-    
+
+
     //
     // Reading and writing
     //
-    
+
 public:
-    
+
     // Reads a data block from the hard drive and copies it into RAM
     i8 read(isize offset, isize length, u32 addr);
-    
+
     // Reads a data block from RAM and writes it onto the hard drive
     i8 write(isize offset, isize length, u32 addr);
-    
+
     // Reads a loadable file system
     void readDriver(isize nr, Buffer<u8> &driver);
-    
+
 private:
 
     // Checks the given argument list for consistency
@@ -355,49 +355,49 @@ private:
     // Moves the drive head to the specified block
     void moveHead(isize lba);
     void moveHead(isize c, isize h, isize s);
-    
-    
+
+
     //
     // Importing and exporting
     //
-    
+
 public:
-    
+
     // Restores a disk (called on connect)
     bool restoreDisk() throws;
 
     // Exports the disk in HDF format
     void writeToFile(const std::filesystem::path &path) throws;
 
-    
+
     //
     // Managing write-through mode
     //
-    
+
     void enableWriteThrough() throws;
     void disableWriteThrough();
 
 private:
-    
+
     // Return the path to the write-through storage file
     string writeThroughPath();
-    
+
     // Creates or updates the write-through storage file
     void saveWriteThroughImage() throws;
-    
-    
+
+
     //
     // Scheduling and serving events
     //
-    
+
 public:
-    
+
     // Schedules an event to revert to idle state
     void scheduleIdleEvent();
-    
+
     // Services a hard drive event
     template <EventSlot s> void serviceHdrEvent();
-    
+
 };
 
 }

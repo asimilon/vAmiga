@@ -48,7 +48,7 @@ public:
 public:
 
     Emulator();
-    ~Emulator();
+    ~Emulator() override;
 
     // Launches the emulator thread
     void launch(const void *listener, Callback *func);
@@ -69,7 +69,7 @@ private:
 
     void _dump(Category category, std::ostream& os) const override;
 
-    
+
     //
     // Methods from Inspectable
     //
@@ -78,7 +78,7 @@ public:
 
     void cacheInfo(EmulatorInfo &result) const override;
     void cacheStats(EmulatorStats &result) const override;
-    
+
 
     //
     // Main API for configuring the emulator
@@ -132,7 +132,7 @@ private:
     //
 
 private:
-    
+
     // Clones the run-ahead instance
     void cloneRunAheadInstance();
 
@@ -157,7 +157,7 @@ public:
     //
 
     const FrameBuffer &getTexture() const;
-    
+
 
     //
     // Command queue
@@ -193,4 +193,3 @@ public:
 };
 
 }
-

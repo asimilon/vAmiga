@@ -72,8 +72,8 @@ public:
 
 private:
 
-    virtual void cacheInfo(T1 &result) const { };
-    virtual void cacheStats(T2 &result) const { };
+    virtual void cacheInfo(T1 &/*result*/) const { }
+    virtual void cacheStats(T2 &/*result*/) const { }
 };
 
 }

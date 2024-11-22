@@ -45,7 +45,7 @@ class RemoteServer : public SubComponent {
     };
 
 protected:
-    
+
     // Current configuration
     ServerConfig config = {};
 
@@ -58,26 +58,26 @@ protected:
 
     // The current server state
     SrvState state = SRV_STATE_OFF;
-    
+
     // The number of sent and received packets
     isize numSent = 0;
     isize numReceived = 0;
 
-    
+
     //
     // Initializing
     //
-    
+
 public:
-    
+
     RemoteServer(Amiga& ref, isize objid);
-    ~RemoteServer() { shutDownServer(); }
+    ~RemoteServer() override { shutDownServer(); }
     void shutDownServer();
-    
+
     RemoteServer& operator= (const RemoteServer& other) {
 
         CLONE(config)
-        
+
         return *this;
     }
 
@@ -85,11 +85,11 @@ public:
     //
     // Methods from CoreObject
     //
-    
+
 protected:
 
     void _dump(Category category, std::ostream& os) const override;
-    
+
 public:
 
     const Descriptions &getDescriptions() const override { return descriptions; }
@@ -98,9 +98,9 @@ public:
     //
     // Methods from CoreComponent
     //
-    
+
 private:
-    
+
     void _powerOff() override;
 
     template <class T>
@@ -114,7 +114,7 @@ private:
         << config.protocol
         << config.verbose;
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
     void _didLoad() override;
 
@@ -135,7 +135,7 @@ public:
     //
     // Examining state
     //
-    
+
 public:
 
     bool isOff() const { return state == SRV_STATE_OFF; }
@@ -145,16 +145,16 @@ public:
     bool isStopping() const { return state == SRV_STATE_STOPPING; }
     bool isErroneous() const { return state == SRV_STATE_ERROR; }
 
-    
+
     //
     // Starting and stopping the server
     //
-    
+
 public:
 
     // Launch the remote server
     void start() throws { SUSPENDED _start(); }
-    
+
     // Shuts down the remote server
     void stop() throws { SUSPENDED _stop(); }
 
@@ -167,46 +167,46 @@ protected:
     void _start() throws;
     void _stop() throws;
     void _disconnect() throws;
-    
+
     // Switches the internal state
     void switchState(SrvState newState);
-    
+
 private:
-    
+
     // Used by the launch daemon to determine if actions should be taken
     virtual bool shouldRun() { return true; }
-        
-    
+
+
     //
     // Running the server
     //
-    
+
 private:
-    
+
     // The main thread function
     void main();
 
     // Inner loops (called from main)
     void mainLoop() throws;
     void sessionLoop();
-    
-    
+
+
     //
     // Transmitting and processing packets
     //
-    
+
 public:
-    
+
     // Receives or packet
     string receive() throws;
-    
+
     // Sends a packet
     void send(const string &payload) throws;
     void send(char payload) throws;
     void send(int payload) throws;
     void send(long payload) throws;
     void send(std::stringstream &payload) throws;
-    
+
     // Operator overloads
     RemoteServer &operator<<(char payload) { send(payload); return *this; }
     RemoteServer &operator<<(const string &payload) { send(payload); return *this; }
@@ -216,33 +216,33 @@ public:
 
     // Processes a package
     void process(const string &payload) throws;
-    
+
 private:
 
     // Reports an error to the GUI
     void handleError(const char *description);
-    
-    
+
+
     //
     // Subclass specific implementations
     //
 
 private:
-    
+
     virtual string doReceive() throws = 0;
     virtual void doSend(const string &payload) throws = 0;
     virtual void doProcess(const string &payload) throws = 0;
-    
-    
+
+
     //
     // Delegation methods
     //
 
     void didSwitch(SrvState from, SrvState to);
-    virtual void didStart() { };
-    virtual void didStop() { };
-    virtual void didConnect() { };
-    virtual void didDisconnect() { };
+    virtual void didStart() { }
+    virtual void didStop() { }
+    virtual void didConnect() { }
+    virtual void didDisconnect() { }
 };
 
 }

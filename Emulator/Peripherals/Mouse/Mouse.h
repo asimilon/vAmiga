@@ -18,25 +18,25 @@
 namespace vamiga {
 
 class ShakeDetector {
-    
+
     // Horizontal position
     double x = 0.0;
-    
+
     // Moved distance
     double dxsum = 0.0;
 
     // Direction (1 or -1)
     double dxsign = 1.0;
-    
+
     // Number of turns
     isize dxturns = 0;
-    
+
     // Time stamps
     u64 lastTurn = 0;
     util::Time lastShake;
-    
+
 public:
-    
+
     // Feeds in new coordinates and checks for a shake
     bool isShakingAbs(double x);
     bool isShakingRel(double dx);
@@ -68,22 +68,22 @@ class Mouse final : public SubComponent {
 
     // Reference to the control port this device belongs to
     ControlPort &port;
-    
+
     // Current configuration
     MouseConfig config = {};
 
     // Shake detector
     class ShakeDetector shakeDetector;
-    
+
 public:
-    
+
     // Mouse button states
     bool leftButton = false;
     bool middleButton = false;
     bool rightButton = false;
-    
+
 private:
-    
+
     // The current mouse position
     double mouseX = 0.0;
     double mouseY = 0.0;
@@ -99,11 +99,11 @@ private:
      */
     double targetX = 0.0;
     double targetY = 0.0;
-    
+
     // Scaling factors applied to the raw mouse coordinates in setXY()
     double scaleX = 1.0;
     double scaleY = 1.0;
-    
+
     // Mouse movement in pixels per execution step
     double shiftX = 31;
     double shiftY = 31;
@@ -112,11 +112,11 @@ private:
     //
     // Initializing
     //
-    
+
 public:
-    
+
     Mouse(Amiga& ref, ControlPort& pref);
-    
+
     Mouse& operator= (const Mouse& other) {
 
         CLONE(leftButton)
@@ -138,24 +138,24 @@ public:
     //
     // Methods from CoreObject
     //
-    
+
 private:
-    
+
     void _dump(Category category, std::ostream& os) const override;
-    
-    
+
+
     //
     // Methods from CoreComponent
     //
 
 private:
-    
+
     template <class T>
     void serialize(T& worker)
     {
         if (isResetter(worker)) {
 
-            worker 
+            worker
 
             << leftButton
             << middleButton
@@ -174,7 +174,7 @@ private:
             << config.pullUpResistors;
         }
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
 public:
 
@@ -186,17 +186,17 @@ public:
     //
 
 public:
-    
+
     const MouseConfig &getConfig() const { return config; }
     const ConfigOptions &getOptions() const override { return options; }
     i64 getOption(Option option) const override;
     void checkOption(Option opt, i64 value) override;
     void setOption(Option option, i64 value) override;
-    
+
 private:
-    
+
     void updateScalingFactors();
-    
+
 
     //
     // Accessing
@@ -210,20 +210,20 @@ public:
     // Modifies the PRA bits of CIA A according to the current button state
     void changePra(u8 &pra) const;
 
-    
+
     //
     // Using the mouse
     //
-    
+
 public:
-    
+
     // Returns a horizontal or vertical position change
     i64 getDeltaX();
     i64 getDeltaY();
 
     // Returns the mouse coordinates as they appear in the JOYDAT register
     u16 getXY();
-    
+
     // Runs the shake detector
     bool detectShakeXY(double x, double y);
     bool detectShakeDxDy(double dx, double dy);
@@ -242,14 +242,14 @@ public:
 
     // Performs periodic actions for this device
     void execute();
-    
-    
+
+
     //
     // Scheduling and servicing events
     //
-    
+
 public:
-    
+
     // Simulates a complete press-and-release cycle for a button
     void pressAndReleaseLeft(Cycle duration = SEC(0.5), Cycle delay = 0);
     void pressAndReleaseMiddle(Cycle duration = SEC(0.5), Cycle delay = 0);

@@ -53,7 +53,7 @@ class FloppyFile;
  */
 
 class FloppyDisk : public CoreObject {
-    
+
     friend class FloppyDrive;
     friend class ADFFile;
     friend class EADFFile;
@@ -61,22 +61,22 @@ class FloppyDisk : public CoreObject {
     friend class STFile;
 
 public:
-    
+
     // The form factor of this disk
     Diameter diameter;
-    
+
     // The density of this disk
     Density density;
-    
+
 private:
-    
+
     // The MFM encoded disk data
     union {
         u8 raw[168*32768];
         u8 cylinder[84][2][32768];
         u8 track[168][32768];
     } data;
-    
+
     // Length of each track in bytes
     union {
         i32 cylinder[84][2];
@@ -85,28 +85,28 @@ private:
 
     // Disk state
     DiskFlags flags = 0;
-    
-    
+
+
     //
     // Initializing
     //
-    
+
 public:
-    
+
     FloppyDisk() = default;
     FloppyDisk(Diameter dia, Density den, bool wp = false) throws { init(dia, den, wp); }
     FloppyDisk(const FloppyFile &file, bool wp = false) throws { init(file, wp); }
     FloppyDisk(SerReader &reader, Diameter dia, Density den, bool wp = false) throws {
         init(reader, dia, den, wp); }
-    ~FloppyDisk();
-    
+    ~FloppyDisk() override;
+
 private:
-    
+
     void init(Diameter dia, Density den, bool wp) throws;
     void init(const class FloppyFile &file, bool wp) throws;
     void init(SerReader &reader, Diameter dia, Density den, bool wp) throws;
 
-    
+
 public:
 
     FloppyDisk& operator= (const FloppyDisk& other) {
@@ -124,19 +124,19 @@ public:
     //
     // Methods from CoreObject
     //
-    
+
 private:
-    
+
     const char *objectName() const override { return "Disk"; }
     void _dump(Category category, std::ostream& os) const override;
-    
-    
+
+
     //
     // Serializing
     //
-    
+
 private:
-    
+
     template <class T>
     void serialize(T& worker)
     {
@@ -149,7 +149,7 @@ private:
         << data.raw
         << length.track
         << flags;
-    };
+    }
 
     //
     // Performing sanity checks
@@ -170,16 +170,16 @@ private:
     //
     // Accessing disk parameters
     //
-    
+
 public:
-    
+
     Diameter getDiameter() const { return diameter; }
     Density getDensity() const { return density; }
-    
+
     isize numCyls() const { return diameter == INCH_525 ? 42 : 84; }
     isize numHeads() const { return 2; }
     isize numTracks() const { return diameter == INCH_525 ? 84 : 168; }
-    
+
     bool isWriteProtected() const { return flags & FLAG_PROTECTED; }
     void setWriteProtection(bool value) { value ? flags |= FLAG_PROTECTED : flags &= ~FLAG_PROTECTED; }
 
@@ -191,7 +191,7 @@ public:
     void setFlag(DiskFlags flag) { setFlag(flag, true); }
     void clearFlag(DiskFlags flag) { setFlag(flag, false); }
 
-    
+
     //
     // Reading and writing
     //
@@ -207,61 +207,61 @@ public:
     // Reads a byte from disk
     u8 readByte(Track t, isize offset) const;
     u8 readByte(Cylinder c, Head h, isize offset) const;
-    
+
     // Writes a byte to disk
     void writeByte(Track t, isize offset, u8 value);
     void writeByte(Cylinder c, Head h, isize offset, u8 value);
-    
-    
+
+
     //
     // Erasing
     //
-    
+
 public:
-    
+
     // Initializes the disk with random data
     void clearDisk();
-    
+
     // Initializes the disk with a constant value
     void clearDisk(u8 value);
-    
+
     // Initializes a single track with random data or a specific value
     void clearTrack(Track t);
     void clearTrack(Track t, u8 value);
     void clearTrack(Track t, u8 value1, u8 value2);
-    
-    
+
+
     //
     // Encoding
     //
-    
+
 public:
-    
+
     // Encodes a disk
     void encodeDisk(const class FloppyFile &file);
 
     // Shifts the tracks agains each other
     void shiftTracks(isize offset);
 
-    
+
     //
     // Working with MFM encoded data streams
     //
-    
+
 public:
-    
+
     static void encodeMFM(u8 *dst, u8 *src, isize count);
     static void decodeMFM(u8 *dst, u8 *src, isize count);
-    
+
     static void encodeOddEven(u8 *dst, u8 *src, isize count);
     static void decodeOddEven(u8 *dst, u8 *src, isize count);
-    
+
     static void addClockBits(u8 *dst, isize count);
     static u8 addClockBits(u8 value, u8 previous);
-    
+
     // Repeats the MFM data inside the track buffer to ease decoding
     void repeatTracks();
-    
+
     // Returns a textual representation of all bits of a track
     string readTrackBits(Track t) const;
     string readTrackBits(Cylinder c, Head h) const;

@@ -63,13 +63,13 @@ class Joystick final : public SubComponent, public Inspectable<JoystickInfo> {
     i64 nextAutofireFrame = 0;
     i64 nextAutofireReleaseFrame = 0;
 
-    
+
     //
     // Initializing
     //
-    
+
 public:
-    
+
     Joystick(Amiga& ref, ControlPort& pref);
 
     Joystick& operator= (const Joystick& other) {
@@ -88,13 +88,13 @@ public:
         return *this;
     }
 
-    
+
     //
     // Methods from Serializable
     //
 
 private:
-    
+
     template <class T>
     void serialize(T& worker)
     {
@@ -121,7 +121,7 @@ private:
             << config.autofireDelay;
         }
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
     void _didLoad() override;
 
@@ -164,7 +164,7 @@ public:
     //
     // Using the device
     //
-    
+
 public:
 
     // Modifies the POTGOR bits according to the current button state
@@ -178,13 +178,13 @@ public:
 
     // Callback handler for function ControlPort::ciapa()
     u8 ciapa() const;
-    
+
     // Triggers a joystick event
     void trigger(GamePadAction event);
 
     // To be called after each frame
     void eofHandler();
-    
+
 private:
 
     // Sets the button state

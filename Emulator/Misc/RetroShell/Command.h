@@ -40,7 +40,7 @@ static const std::string src        = "<source>";
 static const std::string volume     = "<volume>";
 static const std::string string     = "<string>";
 
-};
+}
 
 struct Command {
 

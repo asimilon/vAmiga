@@ -1022,8 +1022,8 @@ Moira::execBitFieldDn(u16 opcode)
     int dwBit  = __________x_____ (ext);
 
     // If do or dw is set, offset or width are taken from data registers
-    int rawOffset = doBit ? reg.d[of & 0b111] : of;
-    int rawWidth = dwBit ? reg.d[wi & 0b111] : wi;
+    int rawOffset = doBit ? reg.dataAddress.d[of & 0b111] : of;
+    int rawWidth = dwBit ? reg.dataAddress.d[wi & 0b111] : wi;
 
     // Crop offset and map width to 32, 1 ... 31
     int offset = rawOffset & 0b11111;
@@ -1123,8 +1123,8 @@ Moira::execBitFieldEa(u16 opcode)
     int dwBit  = __________x_____ (ext);
 
     // If Do or Dw is set, offset or width are taken from data registers
-    if (doBit) offset = reg.d[offset & 0b111];
-    if (dwBit) width = reg.d[width & 0b111];
+    if (doBit) offset = reg.dataAddress.d[offset & 0b111];
+    if (dwBit) width = reg.dataAddress.d[width & 0b111];
 
     // Map width to 32, 1 ... 31
     width = ((width - 1) & 0b11111) + 1;
@@ -1327,9 +1327,9 @@ Moira::execBsr(u16 opcode)
     if (C == C68000) {
 
         // Check for address errors
-        if (misaligned<C>(reg.sp)) {
-            reg.sp -= 4;
-            throw AddressError(makeFrame<AE_WRITE|AE_DATA>(reg.sp));
+        if (misaligned<C>(reg.stackPointer.sp)) {
+            reg.stackPointer.sp -= 4;
+            throw AddressError(makeFrame<AE_WRITE|AE_DATA>(reg.stackPointer.sp));
         }
         if (misaligned<C>(newpc)) {
             throw AddressError(makeFrame(newpc));
@@ -1345,7 +1345,7 @@ Moira::execBsr(u16 opcode)
     } else {
 
         // Check for address errors
-        if (misaligned<C>(reg.sp)) {
+        if (misaligned<C>(reg.stackPointer.sp)) {
             writeBuffer = 0;
             throw AddressError(makeFrame<AE_WRITE|AE_DATA>(newpc));
 
@@ -1466,8 +1466,8 @@ Moira::execCas2(u16 opcode)
 
     readExt<C>();
 
-    u32 ea1 = reg.r[rn1];
-    u32 ea2 = reg.r[rn2];
+    u32 ea1 = reg.allRegisters.r[rn1];
+    u32 ea2 = reg.allRegisters.r[rn2];
     u32 data1 = readM<C, M, S>(ea1);
     u32 data2 = readM<C, M, S>(ea2);
 
@@ -1483,8 +1483,8 @@ Moira::execCas2(u16 opcode)
         cmp<C, S>(CLIP<S>(compare2), data2);
         if (reg.sr.z) {
 
-            writeM<C, M, S>(ea1, reg.d[du1]);
-            writeM<C, M, S>(ea2, reg.d[du2]);
+            writeM<C, M, S>(ea1, reg.dataAddress.d[du1]);
+            writeM<C, M, S>(ea2, reg.dataAddress.d[du2]);
 
             prefetch<C, POLL>();
             CYCLES_68020 (15);
@@ -2284,7 +2284,7 @@ Moira::execExgDxDy(u16 opcode)
     int src = _____________xxx(opcode);
     int dst = ____xxx_________(opcode);
 
-    std::swap(reg.d[src], reg.d[dst]);
+    std::swap(reg.dataAddress.d[src], reg.dataAddress.d[dst]);
 
     prefetch<C, POLL>();
     SYNC(2);
@@ -2303,7 +2303,7 @@ Moira::execExgAxDy(u16 opcode)
     int src = _____________xxx(opcode);
     int dst = ____xxx_________(opcode);
 
-    std::swap(reg.a[src], reg.d[dst]);
+    std::swap(reg.dataAddress.a[src], reg.dataAddress.d[dst]);
 
     prefetch<C, POLL>();
     SYNC(2);
@@ -2322,7 +2322,7 @@ Moira::execExgAxAy(u16 opcode)
     int src = _____________xxx(opcode);
     int dst = ____xxx_________(opcode);
 
-    std::swap(reg.a[src], reg.a[dst]);
+    std::swap(reg.dataAddress.a[src], reg.dataAddress.a[dst]);
 
     prefetch<C, POLL>();
     SYNC(2);
@@ -2457,7 +2457,7 @@ Moira::execJsr(u16 opcode)
         default:
 
             // Check for address errors
-            if (misaligned<C>(ea) && misaligned<C>(reg.sp)) {
+            if (misaligned<C>(ea) && misaligned<C>(reg.stackPointer.sp)) {
 
                 if (M == MODE_AI) {
 
@@ -2490,12 +2490,12 @@ Moira::execJsr(u16 opcode)
                 }
             }
 
-            if (misaligned<C>(reg.sp)) {
+            if (misaligned<C>(reg.stackPointer.sp)) {
 
                 prefetch<C>();
-                reg.sp -= 4;
+                reg.stackPointer.sp -= 4;
                 writeBuffer = u16(reg.pc >> 16);
-                throw AddressError(makeFrame<AE_DATA>(reg.sp));
+                throw AddressError(makeFrame<AE_DATA>(reg.stackPointer.sp));
             }
 
             // Save return address on stack
@@ -2526,11 +2526,11 @@ template <Core C, Instr I, Mode M, Size S> void
 Moira::execLea(u16 opcode)
 {
     AVAILABILITY(C68000)
-    
+
     int src = _____________xxx(opcode);
     int dst = ____xxx_________(opcode);
 
-    reg.a[dst] = computeEA<C, M, S>(src);
+    reg.dataAddress.a[dst] = computeEA<C, M, S>(src);
     if (isIdxMode(M)) SYNC(2);
 
     prefetch<C, POLL>();
@@ -2578,7 +2578,7 @@ Moira::execLink(u16 opcode)
 
     // Modify address register and stack pointer
     writeA(ax, sp);
-    reg.sp = U32_ADD(reg.sp, disp);
+    reg.stackPointer.sp = U32_ADD(reg.stackPointer.sp, disp);
 
     prefetch<C>();
 
@@ -3175,14 +3175,14 @@ Moira::execMovecRcRx(u16 opcode)
 
     switch (arg & 0x0FFF) {
 
-        case 0x000: reg.r[dst] = getSFC(); break;
-        case 0x001: reg.r[dst] = getDFC(); break;
-        case 0x800: reg.r[dst] = getUSP(); break;
-        case 0x801: reg.r[dst] = getVBR(); break;
-        case 0x002: reg.r[dst] = getCACR(); break;
-        case 0x802: reg.r[dst] = getCAAR(); break;
-        case 0x803: reg.r[dst] = reg.sr.m ? getSP() : getMSP(); break;
-        case 0x804: reg.r[dst] = reg.sr.m ? getISP() : getSP(); break;
+        case 0x000: reg.allRegisters.r[dst] = getSFC(); break;
+        case 0x001: reg.allRegisters.r[dst] = getDFC(); break;
+        case 0x800: reg.allRegisters.r[dst] = getUSP(); break;
+        case 0x801: reg.allRegisters.r[dst] = getVBR(); break;
+        case 0x002: reg.allRegisters.r[dst] = getCACR(); break;
+        case 0x802: reg.allRegisters.r[dst] = getCAAR(); break;
+        case 0x803: reg.allRegisters.r[dst] = reg.sr.m ? getSP() : getMSP(); break;
+        case 0x804: reg.allRegisters.r[dst] = reg.sr.m ? getISP() : getSP(); break;
     }
 
     prefetch<C, POLL>();
@@ -3343,14 +3343,14 @@ Moira::execMovemRgEa(u16 opcode)
 
                 setFC<M>();
                 readBuffer = mask;
-                writeBuffer = u16(reg.r[i] & 0xFFFF);
+                writeBuffer = u16(reg.allRegisters.r[i] & 0xFFFF);
                 throw AddressError(makeFrame<AE_INC_PC|AE_WRITE>(U32_SUB(ea, 2)));
             }
 
             // Write register contents into memory
             ea -= S;
             if constexpr (C == C68020 && !MIMIC_MUSASHI) writeA(dst, ea);
-            writeM<C, M, S, MIMIC_MUSASHI ? REVERSE : 0>(ea, reg.r[i]);
+            writeM<C, M, S, MIMIC_MUSASHI ? REVERSE : 0>(ea, reg.allRegisters.r[i]);
             cnt++;
         }
         if constexpr (C != C68020 || MIMIC_MUSASHI) writeA(dst, ea);
@@ -3369,12 +3369,12 @@ Moira::execMovemRgEa(u16 opcode)
 
                 setFC<M>();
                 readBuffer = mask;
-                writeBuffer = S == Long ? u16(reg.r[i] >> 16) : u16(reg.r[i] & 0xFFFF);
+                writeBuffer = S == Long ? u16(reg.allRegisters.r[i] >> 16) : u16(reg.allRegisters.r[i] & 0xFFFF);
                 throw AddressError(makeFrame<AE_INC_PC|AE_WRITE>(ea));
             }
 
             // Write register contents into memory
-            writeM<C, M, S>(ea, reg.r[i]);
+            writeM<C, M, S>(ea, reg.allRegisters.r[i]);
             ea += S;
             cnt++;
         }
@@ -4778,12 +4778,12 @@ Moira::execPackPd(u16 opcode)
 
     } else {
 
-        reg.a[ax]--;
+        reg.dataAddress.a[ax]--;
         auto data1 = read<C, MEM_DATA, Byte>(readA(ax));
 
         u16 adj = (u16)readI<C, Word>();
 
-        reg.a[ax]--;
+        reg.dataAddress.a[ax]--;
         auto data2 = read<C, MEM_DATA, Byte>(readA(ax));
 
         u32 src = (data2 << 8 | data1) + adj;
@@ -4813,16 +4813,16 @@ Moira::execPea(u16 opcode)
     if (isIdxMode(M)) SYNC(2);
 
     // Check for address error
-    if (misaligned<C>(reg.sp)) {
+    if (misaligned<C>(reg.stackPointer.sp)) {
 
-        U32_DEC(reg.sp, S);
+        U32_DEC(reg.stackPointer.sp, S);
 
         if (C == C68000) {
 
             if (isAbsMode(M)) {
-                throw AddressError(makeFrame<AE_WRITE|AE_DATA>(reg.sp));
+                throw AddressError(makeFrame<AE_WRITE|AE_DATA>(reg.stackPointer.sp));
             } else {
-                throw AddressError(makeFrame<AE_WRITE|AE_DATA|AE_INC_PC>(reg.sp));
+                throw AddressError(makeFrame<AE_WRITE|AE_DATA|AE_INC_PC>(reg.stackPointer.sp));
             }
 
         } else {
@@ -4830,13 +4830,13 @@ Moira::execPea(u16 opcode)
             writeBuffer = u16(ea >> 16);
             if (isAbsMode(M)) {
                 readBuffer = queue.irc;
-                throw AddressError(makeFrame<AE_WRITE|AE_DATA>(reg.sp, U32_SUB(reg.pc, 4)));
+                throw AddressError(makeFrame<AE_WRITE|AE_DATA>(reg.stackPointer.sp, U32_SUB(reg.pc, 4)));
             } else if (isDspMode(M)) {
                 prefetch<C>();
-                throw AddressError(makeFrame<AE_WRITE|AE_DATA|AE_DEC_PC>(reg.sp));
+                throw AddressError(makeFrame<AE_WRITE|AE_DATA|AE_DEC_PC>(reg.stackPointer.sp));
             } else {
                 prefetch<C>();
-                throw AddressError(makeFrame<AE_WRITE|AE_DATA>(reg.sp));
+                throw AddressError(makeFrame<AE_WRITE|AE_DATA>(reg.stackPointer.sp));
             }
         }
     }
@@ -4913,15 +4913,15 @@ Moira::execRtd(u16 opcode)
     AVAILABILITY(C68010)
 
     // Check for address error
-    if (misaligned<C>(reg.sp)) {
+    if (misaligned<C>(reg.stackPointer.sp)) {
 
         setFC<M>();
-        readBuffer = u16(readM<C, M, Word>(reg.sp & ~1));
-        throw AddressError(makeFrame<AE_SET_RW|AE_SET_DF>(reg.sp));
+        readBuffer = u16(readM<C, M, Word>(reg.stackPointer.sp & ~1));
+        throw AddressError(makeFrame<AE_SET_RW|AE_SET_DF>(reg.stackPointer.sp));
     }
 
-    u32 newpc = readM<C, M, Long>(reg.sp);
-    reg.sp += 4 + i16(queue.irc);
+    u32 newpc = readM<C, M, Long>(reg.stackPointer.sp);
+    reg.stackPointer.sp += 4 + i16(queue.irc);
 
     // Check for address error
     if (misaligned<C>(newpc)) {
@@ -4952,44 +4952,44 @@ Moira::execRte(u16 opcode)
         case C68000:
         {
             // TODO: Use pop instead of read (?)
-            newsr = (u16)read<C, MEM_DATA, Word>(reg.sp);
-            reg.sp += 2;
+            newsr = (u16)read<C, MEM_DATA, Word>(reg.stackPointer.sp);
+            reg.stackPointer.sp += 2;
 
-            newpc = read<C, MEM_DATA, Long>(reg.sp);
-            reg.sp += 4;
+            newpc = read<C, MEM_DATA, Long>(reg.stackPointer.sp);
+            reg.stackPointer.sp += 4;
             break;
         }
         case C68010:
         {
             // TODO: Use pop instead of read (?)
-            u16 format = (u16)read<C, MEM_DATA, Word>(reg.sp + 6);
+            u16 format = (u16)read<C, MEM_DATA, Word>(reg.stackPointer.sp + 6);
 
             // Check the frame format
             switch (format >> 12) {
 
                 case 0b0000: // Short format
 
-                    newsr = (u16)read<C, MEM_DATA, Word>(reg.sp + 0);
+                    newsr = (u16)read<C, MEM_DATA, Word>(reg.stackPointer.sp + 0);
                     if ((format & 0xFF) == 0x10) {
                         // SYNC(4); // ???? TODO: LOOKS WRONG
                     }
-                    newpc = read<C, MEM_DATA, Long>(reg.sp + 2);
-                    reg.sp += 8;
+                    newpc = read<C, MEM_DATA, Long>(reg.stackPointer.sp + 2);
+                    reg.stackPointer.sp += 8;
 
                     break;
 
                 case 0b1000: // Long format (keep on reading)
                 {
-                    newsr = (u16)read<C, MEM_DATA, Word>(reg.sp + 0);
+                    newsr = (u16)read<C, MEM_DATA, Word>(reg.stackPointer.sp + 0);
                     if ((format & 0xFF) == 0x10) {
                         // SYNC(4); // ???? TODO: LOOKS WRONG
                     }
-                    newpc = read<C, MEM_DATA, Long>(reg.sp + 2);
+                    newpc = read<C, MEM_DATA, Long>(reg.stackPointer.sp + 2);
 
-                    (void)read<C, MEM_DATA, Word>(reg.sp + 8); // special status word
-                    (void)read<C, MEM_DATA, Long>(reg.sp + 10); // fault address
+                    (void)read<C, MEM_DATA, Word>(reg.stackPointer.sp + 8); // special status word
+                    (void)read<C, MEM_DATA, Long>(reg.stackPointer.sp + 10); // fault address
 
-                    u16 value = (u16)read<C, MEM_DATA, Word>(reg.sp + 26); // internal information, 16 words
+                    u16 value = (u16)read<C, MEM_DATA, Word>(reg.stackPointer.sp + 26); // internal information, 16 words
                     u16 version = (value >> 10) & 0xF;
 
                     if (version != 0) { // TODO: PUT IN CPU VERSION NUMBER (GET FROM REAL CPU)
@@ -4999,24 +4999,24 @@ Moira::execRte(u16 opcode)
                         return;
                     }
 
-                    (void)read<C, MEM_DATA, Word>(reg.sp + 28); // internal information, 16 words
+                    (void)read<C, MEM_DATA, Word>(reg.stackPointer.sp + 28); // internal information, 16 words
 
-                    (void)read<C, MEM_DATA, Word>(reg.sp + 14); // unused/reserved
-                    (void)read<C, MEM_DATA, Word>(reg.sp + 16); // data output buffer
-                    (void)read<C, MEM_DATA, Word>(reg.sp + 18); // unused/reserved
-                    (void)read<C, MEM_DATA, Word>(reg.sp + 20); // data input buffer
-                    (void)read<C, MEM_DATA, Word>(reg.sp + 22); // unused/reserved
-                    (void)read<C, MEM_DATA, Word>(reg.sp + 24); // instruction input buffer
+                    (void)read<C, MEM_DATA, Word>(reg.stackPointer.sp + 14); // unused/reserved
+                    (void)read<C, MEM_DATA, Word>(reg.stackPointer.sp + 16); // data output buffer
+                    (void)read<C, MEM_DATA, Word>(reg.stackPointer.sp + 18); // unused/reserved
+                    (void)read<C, MEM_DATA, Word>(reg.stackPointer.sp + 20); // data input buffer
+                    (void)read<C, MEM_DATA, Word>(reg.stackPointer.sp + 22); // unused/reserved
+                    (void)read<C, MEM_DATA, Word>(reg.stackPointer.sp + 24); // instruction input buffer
 
-                    (void)read<C, MEM_DATA, Long>(reg.sp + 34); // internal information, 16 words
-                    (void)read<C, MEM_DATA, Long>(reg.sp + 36); // internal information, 16 words
-                    (void)read<C, MEM_DATA, Long>(reg.sp + 38); // internal information, 16 words
-                    (void)read<C, MEM_DATA, Long>(reg.sp + 42); // internal information, 16 words
-                    (void)read<C, MEM_DATA, Long>(reg.sp + 46); // internal information, 16 words
-                    (void)read<C, MEM_DATA, Long>(reg.sp + 50); // internal information, 16 words
-                    (void)read<C, MEM_DATA, Long>(reg.sp + 54); // internal information, 16 words
+                    (void)read<C, MEM_DATA, Long>(reg.stackPointer.sp + 34); // internal information, 16 words
+                    (void)read<C, MEM_DATA, Long>(reg.stackPointer.sp + 36); // internal information, 16 words
+                    (void)read<C, MEM_DATA, Long>(reg.stackPointer.sp + 38); // internal information, 16 words
+                    (void)read<C, MEM_DATA, Long>(reg.stackPointer.sp + 42); // internal information, 16 words
+                    (void)read<C, MEM_DATA, Long>(reg.stackPointer.sp + 46); // internal information, 16 words
+                    (void)read<C, MEM_DATA, Long>(reg.stackPointer.sp + 50); // internal information, 16 words
+                    (void)read<C, MEM_DATA, Long>(reg.stackPointer.sp + 54); // internal information, 16 words
 
-                    reg.sp += 58;
+                    reg.stackPointer.sp += 58;
                     break;
                 }
                 default: // Format error
@@ -5029,7 +5029,7 @@ Moira::execRte(u16 opcode)
                     }
 
                     SYNC(4);
-                    (void)read<C, MEM_DATA, Long>(reg.sp + 2);
+                    (void)read<C, MEM_DATA, Long>(reg.stackPointer.sp + 2);
 
                     // reg.sr.c = 1; // Check test case Exceptions/StackFrame/stackframe2
                     execException(EXC_FORMAT_ERROR);
@@ -5041,34 +5041,34 @@ Moira::execRte(u16 opcode)
         {
             while (1) {
 
-                u16 format = (u16)(read<C, MEM_DATA, Word>(reg.sp + 6) >> 12);
+                u16 format = (u16)(read<C, MEM_DATA, Word>(reg.stackPointer.sp + 6) >> 12);
 
                 if (format == 0b000) {  // Standard frame
 
                     // TODO: Use pop instead of read
 
-                    newsr = (u16)read<C, MEM_DATA, Word>(reg.sp);
-                    reg.sp += 2;
+                    newsr = (u16)read<C, MEM_DATA, Word>(reg.stackPointer.sp);
+                    reg.stackPointer.sp += 2;
 
-                    newpc = read<C, MEM_DATA, Long>(reg.sp);
-                    reg.sp += 4;
+                    newpc = read<C, MEM_DATA, Long>(reg.stackPointer.sp);
+                    reg.stackPointer.sp += 4;
 
-                    (void)read<C, MEM_DATA, Word>(reg.sp);
-                    reg.sp += 2;
+                    (void)read<C, MEM_DATA, Word>(reg.stackPointer.sp);
+                    reg.stackPointer.sp += 2;
                     break;
 
                 } else if (format == 0b001) {  // Throwaway frame
 
                     // TODO: Use pop instead of read
 
-                    newsr = (u16)read<C, MEM_DATA, Word>(reg.sp);
-                    reg.sp += 2;
+                    newsr = (u16)read<C, MEM_DATA, Word>(reg.stackPointer.sp);
+                    reg.stackPointer.sp += 2;
 
-                    (void)read<C, MEM_DATA, Long>(reg.sp);
-                    reg.sp += 4;
+                    (void)read<C, MEM_DATA, Long>(reg.stackPointer.sp);
+                    reg.stackPointer.sp += 4;
 
-                    (void)read<C, MEM_DATA, Word>(reg.sp);
-                    reg.sp += 2;
+                    (void)read<C, MEM_DATA, Word>(reg.stackPointer.sp);
+                    reg.stackPointer.sp += 2;
 
                     setSR(newsr);
                     continue;
@@ -5077,17 +5077,17 @@ Moira::execRte(u16 opcode)
 
                     // TODO: Use pop instead of read
 
-                    newsr = (u16)read<C, MEM_DATA, Word>(reg.sp);
-                    reg.sp += 2;
+                    newsr = (u16)read<C, MEM_DATA, Word>(reg.stackPointer.sp);
+                    reg.stackPointer.sp += 2;
 
-                    newpc = read<C, MEM_DATA, Long>(reg.sp);
-                    reg.sp += 4;
+                    newpc = read<C, MEM_DATA, Long>(reg.stackPointer.sp);
+                    reg.stackPointer.sp += 4;
 
-                    (void)read<C, MEM_DATA, Word>(reg.sp);
-                    reg.sp += 2;
+                    (void)read<C, MEM_DATA, Word>(reg.stackPointer.sp);
+                    reg.stackPointer.sp += 2;
 
-                    (void)read<C, MEM_DATA, Long>(reg.sp);
-                    reg.sp += 4;
+                    (void)read<C, MEM_DATA, Long>(reg.stackPointer.sp);
+                    reg.stackPointer.sp += 4;
                     break;
 
                 } else if (format == 0b1011) {
@@ -5201,19 +5201,19 @@ Moira::execRtr(u16 opcode)
     AVAILABILITY(C68000)
 
     // Check for address error
-    if (misaligned<C>(reg.sp)) {
+    if (misaligned<C>(reg.stackPointer.sp)) {
 
         setFC<M>();
-        readBuffer = u16(readM<C, M, Word>(reg.sp & ~1));
-        throw AddressError(makeFrame<AE_SET_RW|AE_SET_DF>(reg.sp));
+        readBuffer = u16(readM<C, M, Word>(reg.stackPointer.sp & ~1));
+        throw AddressError(makeFrame<AE_SET_RW|AE_SET_DF>(reg.stackPointer.sp));
     }
 
-    u16 newccr = (u16)readM<C, M, Word>(reg.sp);
+    u16 newccr = (u16)readM<C, M, Word>(reg.stackPointer.sp);
 
-    reg.sp += 2;
+    reg.stackPointer.sp += 2;
 
-    u32 newpc = read<C, MEM_DATA, Long>(reg.sp);
-    reg.sp += 4;
+    u32 newpc = read<C, MEM_DATA, Long>(reg.stackPointer.sp);
+    reg.stackPointer.sp += 4;
 
     setCCR((u8)newccr);
 
@@ -5238,15 +5238,15 @@ Moira::execRts(u16 opcode)
     AVAILABILITY(C68000)
 
     // Check for address error
-    if (misaligned<C>(reg.sp)) {
+    if (misaligned<C>(reg.stackPointer.sp)) {
 
         setFC<M>();
-        readBuffer = u16(readM<C, M, Word>(reg.sp & ~1));
-        throw AddressError(makeFrame<AE_SET_RW|AE_SET_DF>(reg.sp));
+        readBuffer = u16(readM<C, M, Word>(reg.stackPointer.sp & ~1));
+        throw AddressError(makeFrame<AE_SET_RW|AE_SET_DF>(reg.stackPointer.sp));
     }
 
-    u32 newpc = readM<C, M, Long>(reg.sp);
-    reg.sp += 4;
+    u32 newpc = readM<C, M, Long>(reg.stackPointer.sp);
+    reg.stackPointer.sp += 4;
 
     // Check for address error
     if (misaligned<C>(newpc)) {
@@ -5575,14 +5575,14 @@ Moira::execUnlk(u16 opcode)
     }
 
     // Move address register to stack pointer
-    reg.sp = readA(an);
+    reg.stackPointer.sp = readA(an);
 
     // Update address register
     u32 ea, data;
     readOp<C, MODE_AI, Long, AE_DATA|AE_INC_PC|POLL>(7, &ea, &data);
     writeA(an, data);
 
-    if (an != 7) reg.sp += 4;
+    if (an != 7) reg.stackPointer.sp += 4;
     prefetch<C>();
 
     //           00  10  20        00  10  20        00  10  20
@@ -5636,10 +5636,10 @@ Moira::execUnpkPd(u16 opcode)
 
     } else {
 
-        reg.a[ay]--;
+        reg.dataAddress.a[ay]--;
         write<C, MEM_DATA, Byte>(readA(ay), dst & 0xFF);
 
-        reg.a[ay]--;
+        reg.dataAddress.a[ay]--;
         write<C, MEM_DATA, Byte>(readA(ay), dst >> 8 & 0xFF);
     }
 

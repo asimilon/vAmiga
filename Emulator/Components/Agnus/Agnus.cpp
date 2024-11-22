@@ -14,13 +14,13 @@
 namespace vamiga {
 
 Agnus::Agnus(Amiga& ref) : SubComponent(ref)
-{    
+{
     subComponents = std::vector<CoreComponent *> {
-        
+
         &sequencer,
-        &copper,
-        &blitter,
-        &dmaDebugger
+        &agnusCopper,
+        &agnusBlitter,
+        &agnusDmaDebugger
     };
 }
 
@@ -43,7 +43,7 @@ Agnus::operator << (SerResetter &worker)
 
     // Initialize all event slots
     for (isize i = 0; i < SLOT_COUNT; i++) {
-        
+
         trigger[i] = NEVER;
         id[i] = (EventID)0;
         data[i] = 0;
@@ -70,7 +70,7 @@ Agnus::getOption(Option option) const
 
         case OPT_AGNUS_REVISION:        return config.revision;
         case OPT_AGNUS_PTR_DROPS:       return config.ptrDrops;
-            
+
         default:
             fatalError;
     }
@@ -108,7 +108,7 @@ Agnus::setOption(Option option, i64 value)
         case OPT_AGNUS_REVISION:
 
             switch (config.revision = (AgnusRevision)value) {
-                    
+
                 case AGNUS_OCS_OLD:
                 case AGNUS_OCS:     ptrMask = 0x07FFFF; break;
                 case AGNUS_ECS_1MB: ptrMask = 0x0FFFFF; break;
@@ -119,12 +119,12 @@ Agnus::setOption(Option option, i64 value)
             }
             mem.updateMemSrcTables();
             return;
-            
+
         case OPT_AGNUS_PTR_DROPS:
 
             config.ptrDrops = value;
             return;
-            
+
         default:
             fatalError;
     }
@@ -140,15 +140,15 @@ Agnus::setVideoFormat(VideoFormat newFormat)
 
     // Rectify pending events that rely on exact beam positions
     agnus.rectifyVBLEvent();
-    
+
     // Clear frame buffers
-    denise.pixelEngine.clearAll();
+    denise.denisePixelEngine.clearAll();
 
     // Inform the GUI
     msgQueue.put(MSG_VIDEO_FORMAT, newFormat);
 }
 
-AgnusTraits 
+AgnusTraits
 Agnus::getTraits() const
 {
     return AgnusTraits {
@@ -180,7 +180,7 @@ u16
 Agnus::idBits() const
 {
     switch (config.revision) {
-            
+
         case AGNUS_ECS_2MB: return 0x2000; // TODO: CHECK ON REAL MACHINE
         case AGNUS_ECS_1MB: return 0x2000;
         default:            return 0x0000;
@@ -242,13 +242,13 @@ Agnus::syncWithEClock()
 
     // Determine where we are in the current E clock cycle
     Cycle eClk = (clock >> 2) % 10;
-    
+
     // We want to sync to position (2).
     // If we are already too close, we seek (2) in the next E clock cycle.
     Cycle delay = 0;
-    
+
     switch (eClk) {
-            
+
         case 0: delay = 4 * (2 + 10); break;
         case 1: delay = 4 * (1 + 10); break;
         case 2: delay = 4 * (0 + 10); break;
@@ -263,10 +263,10 @@ Agnus::syncWithEClock()
         default:
             fatalError;
     }
-    
+
     // Doublecheck that we are going to sync to a DMA cycle
     assert(DMA_CYCLES(AS_DMA_CYCLES(clock + delay)) == clock + delay);
-    
+
     // Execute Agnus until the target cycle has been reached
     execute(AS_DMA_CYCLES(delay));
 
@@ -282,7 +282,7 @@ Agnus::executeUntilBusIsFree()
 
     // Disable overclocking temporarily
     cpu.slowCycles = 1;
-    
+
     // Check if the bus is blocked
     if (busOwner[pos.h] != BUS_NONE) {
 
@@ -351,10 +351,10 @@ Agnus::executeUntil(Cycle cycle) {
         agnus.serviceDASEvent(id[SLOT_DAS]);
     }
     if (isDue<SLOT_COP>(cycle)) {
-        copper.serviceEvent(id[SLOT_COP]);
+        agnusCopper.serviceEvent(id[SLOT_COP]);
     }
     if (isDue<SLOT_BLT>(cycle)) {
-        blitter.serviceEvent(id[SLOT_BLT]);
+        agnusBlitter.serviceEvent(id[SLOT_BLT]);
     }
 
     if (isDue<SLOT_SEC>(cycle)) {
@@ -376,7 +376,7 @@ Agnus::executeUntil(Cycle cycle) {
             paula.channel3.serviceEvent();
         }
         if (isDue<SLOT_DSK>(cycle)) {
-            paula.diskController.serviceDiskEvent();
+            paula.paulaDiskController.serviceDiskEvent();
         }
         if (isDue<SLOT_VBL>(cycle)) {
             agnus.serviceVBLEvent(id[SLOT_VBL]);
@@ -451,7 +451,7 @@ Agnus::executeUntil(Cycle cycle) {
                 remoteManager.serServer.serviceSerEvent();
             }
             if (isDue<SLOT_BTR>(cycle)) {
-                dmaDebugger.beamtraps.serviceEvent();
+                agnusDmaDebugger.beamtraps.serviceEvent();
             }
             if (isDue<SLOT_ALA>(cycle)) {
                 amiga.serviceAlarmEvent();
@@ -467,7 +467,7 @@ Agnus::executeUntil(Cycle cycle) {
             }
             rescheduleAbs<SLOT_TER>(next);
         }
-        
+
         // Determine the next trigger cycle for all secondary slots
         Cycle next = trigger[SLOT_SEC + 1];
         for (isize i = SLOT_SEC + 2; i <= SLOT_TER; i++) {
@@ -514,10 +514,10 @@ Agnus::executeFirstSpriteCycle()
 
             // Read in the next data word (part A)
             if (sprdma()) {
-                
+
                 auto value = doSpriteDmaRead<nr>();
                 denise.pokeSPRxDATA<nr>(value);
-                
+
             } else {
 
                 busOwner[pos.h] = BUS_BLOCKED;
@@ -538,12 +538,12 @@ Agnus::executeSecondSpriteCycle()
         if (!spriteCycleIsBlocked()) {
 
             if (sprdma()) {
-                
+
                 // Read in the next control word (CTL part)
                 auto value = doSpriteDmaRead<nr>();
                 agnus.pokeSPRxCTL<nr, ACCESSOR_AGNUS>(value);
                 denise.pokeSPRxCTL<nr>(value);
-                
+
             } else {
 
                 busOwner[pos.h] = BUS_BLOCKED;
@@ -555,11 +555,11 @@ Agnus::executeSecondSpriteCycle()
         if (!spriteCycleIsBlocked()) {
 
             if (sprdma()) {
-                
+
                 // Read in the next data word (part B)
                 auto value = doSpriteDmaRead<nr>();
                 denise.pokeSPRxDATB<nr>(value);
-                
+
             } else {
 
                 busOwner[pos.h] = BUS_BLOCKED;
@@ -568,7 +568,7 @@ Agnus::executeSecondSpriteCycle()
     }
 }
 
-bool 
+bool
 Agnus::spriteCycleIsBlocked()
 {
     if (isOCS()) {
@@ -610,7 +610,7 @@ Agnus::eolHandler()
     assert(pos.h == HPOS_CNT_PAL || pos.h == HPOS_CNT_NTSC);
 
     // Pass control to the DMA debugger
-    dmaDebugger.eolHandler();
+    agnusDmaDebugger.eolHandler();
 
     // Move to the next line
     pos.eol();
@@ -670,7 +670,7 @@ Agnus::eofHandler()
     // Let other components do their own EOF stuff
     paula.eofHandler();
     sequencer.eofHandler();
-    copper.eofHandler();
+    agnusCopper.eofHandler();
     controlPort1.joystick.eofHandler();
     controlPort2.joystick.eofHandler();
     mem.eofHandler();
@@ -683,11 +683,11 @@ void
 Agnus::hsyncHandler()
 {
     assert(pos.h == 0x12);
-    
+
     // Draw the previous line
     isize vpos = agnus.pos.vPrev();
     denise.hsyncHandler(vpos);
-    dmaDebugger.hsyncHandler(vpos);
+    agnusDmaDebugger.hsyncHandler(vpos);
 
     // Encode a LORES marker in the first HBLANK pixel
     REPLACE_BIT(*pixelEngine.workingPtr(vpos), 28, res != LORES);

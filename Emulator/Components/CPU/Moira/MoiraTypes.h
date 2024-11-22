@@ -342,18 +342,22 @@ struct Registers {
     u32 pc0;                // Beginning of the currently executed instruction
     StatusRegister sr;      // Status register
 
+    struct DataAddress {
+        u32 d[8];       // D0, D1 ... D7
+        u32 a[8];       // A0, A1 ... A7
+    };
+    struct AllRegisters {
+        u32 r[16];      // D0, D1 ... D7, A0, A1 ... A7
+    };
+    struct StackPointer {
+        u32 _pad[15];
+        u32 sp;         // Visible stack pointer (overlays a[7])
+    };
+
     union {
-        struct {
-            u32 d[8];       // D0, D1 ... D7
-            u32 a[8];       // A0, A1 ... A7
-        };
-        struct {
-            u32 r[16];      // D0, D1 ... D7, A0, A1 ... A7
-        };
-        struct {
-            u32 _pad[15];
-            u32 sp;         // Visible stack pointer (overlays a[7])
-        };
+        DataAddress dataAddress;
+        AllRegisters allRegisters;
+        StackPointer stackPointer;
     };
 
     u32 usp;                // User Stack Pointer

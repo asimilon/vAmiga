@@ -134,7 +134,7 @@ Denise::setBPLCON0(u16 oldValue, u16 newValue)
     
     // Check if the HAM bit or the SHRES bit have changed
     if ((ham(oldValue) ^ ham(newValue)) || (shres(oldValue) ^ shres(newValue))) {
-        pixelEngine.colChanges.insert(pixel, RegChange { 0x100, newValue } );
+        denisePixelEngine.colChanges.insert(pixel, RegChange { 0x100, newValue } );
     }
 
     // Update value
@@ -342,7 +342,7 @@ Denise::pokeCOLORxx(u16 value)
     constexpr u32 reg = 0x180 + 2*xx;
 
     // Record the color change
-    pixelEngine.colChanges.insert(agnus.pos.pixel(), RegChange { reg, value } );
+    denisePixelEngine.colChanges.insert(agnus.pos.pixel(), RegChange { reg, value } );
 }
 
 Resolution

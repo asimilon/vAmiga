@@ -17,7 +17,7 @@ Recorder::Recorder(Amiga& ref) : SubComponent(ref)
 {
     subComponents = std::vector<CoreComponent *> {
         
-        &audioPort
+        &recorderAudioPort
     };
 }
 
@@ -328,7 +328,7 @@ Recorder::record(Cycle target)
 void
 Recorder::recordVideo(Cycle target)
 {
-    auto *buffer = denise.pixelEngine.stablePtr();
+    auto *buffer = denise.denisePixelEngine.stablePtr();
 
     isize width = sizeof(u32) * (cutout.x2 - cutout.x1);
     isize height = cutout.y2 - cutout.y1;
@@ -355,10 +355,10 @@ Recorder::recordAudio(Cycle target)
 {
     
     // Clone Paula's AudioPort contents
-    audioPort.sampler[0] = audioPort.sampler[0];
-    audioPort.sampler[1] = audioPort.sampler[1];
-    audioPort.sampler[2] = audioPort.sampler[2];
-    audioPort.sampler[3] = audioPort.sampler[3];
+    recorderAudioPort.sampler[0] = recorderAudioPort.sampler[0];
+    recorderAudioPort.sampler[1] = recorderAudioPort.sampler[1];
+    recorderAudioPort.sampler[2] = recorderAudioPort.sampler[2];
+    recorderAudioPort.sampler[3] = recorderAudioPort.sampler[3];
     assert(audioPort.sampler[0].r == audioPort.sampler[0].r);
     assert(audioPort.sampler[0].w == audioPort.sampler[0].w);
 
@@ -366,11 +366,11 @@ Recorder::recordAudio(Cycle target)
     if (audioClock == 0) audioClock = target-1;
     
     // Synthesize audio samples
-    audioPort.synthesize(audioClock, target, samplesPerFrame);
+    recorderAudioPort.synthesize(audioClock, target, samplesPerFrame);
     audioClock = target;
     
     // Copy samples to buffer
-    audioPort.copyMono(audioData.ptr, samplesPerFrame);
+    recorderAudioPort.copyMono(audioData.ptr, samplesPerFrame);
 
     // Feed the audio pipe
     assert(audioPipe.isOpen());

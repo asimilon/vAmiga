@@ -35,14 +35,14 @@ class Copper final : public SubComponent, public Inspectable<CopperInfo>
 
     friend class Agnus;
     friend class CopperDebugger;
-    
+
 public:
 
     // The Copper debugger
     CopperDebugger debugger = CopperDebugger(amiga);
 
 private:
-    
+
     // The currently executed Copper list (1 or 2)
     isize copList = 1;
 
@@ -68,7 +68,7 @@ private:
 
     // The Copper program counter at the time of the latest FETCH
     u32 coppc0 = 0;
-    
+
     /* Indicates whether the Copper has been active since the last vertical
      * sync. The value of this variable is used to determine if a write to the
      * location registers will be pushed through the Copper's program counter.
@@ -83,7 +83,7 @@ public:
 
     // Indicates if Copper is currently servicing an event (for debugging only)
     bool servicing = false;
-    
+
 
     //
     // Debugging
@@ -98,9 +98,9 @@ private:
     //
     // Initializing
     //
-    
+
 public:
-    
+
     Copper(Amiga& ref);
 
     Copper& operator= (const Copper& other) {
@@ -123,9 +123,9 @@ public:
     //
     // Methods from Serializable
     //
-    
+
 private:
-        
+
     template <class T>
     void serialize(T& worker)
     {
@@ -141,8 +141,8 @@ private:
         << coppc
         << coppc0
         << activeInThisFrame;
-   
-    } SERIALIZERS(serialize);
+
+    } SERIALIZERS(serialize)
 
 public:
 
@@ -169,14 +169,14 @@ private:
 public:
 
     void cacheInfo(CopperInfo &result) const override;
-    
+
 
     //
     // Accessing
     //
 
 public:
-    
+
     u32 getCopPC0() const { return coppc0; }
 
     void pokeCOPCON(u16 value);
@@ -189,16 +189,16 @@ public:
     void pokeCOP2LCL(u16 value);
     void pokeNOOP(u16 value);
 
-    
+
     //
     // Running the device
     //
-    
+
 private:
 
     // Sets the program counter to a given address
     void setPC(u32 addr);
-    
+
     // Advances the program counter
     void advancePC();
 
@@ -232,7 +232,7 @@ private:
      bool comparator(Beam beam) const;
      bool comparator() const;
      */
-    
+
     // Runs the comparator circuit
     bool runComparator() const;
     bool runComparator(Beam beam) const;
@@ -246,9 +246,9 @@ private:
     //
     // Analyzing Copper instructions
     //
-    
+
 private:
-    
+
     /*             MOVE              WAIT              SKIP
      * Bit   cop1ins cop2ins   cop1ins cop2ins   cop1ins cop2ins
      *  15      x     DW15       VP7     BFD       VP7     BFD
@@ -275,7 +275,7 @@ private:
 
     bool isMoveCmd() const;
     bool isMoveCmd(u32 addr) const;
-    
+
     bool isWaitCmd() const;
     bool isWaitCmd(u32 addr) const;
 
@@ -297,29 +297,29 @@ private:
     u16 getVP(u32 addr) { return HI_BYTE(getVPHP(addr)); }
     u16 getHP() const { return LO_BYTE(getVPHP()); }
     u16 getHP(u32 addr) { return LO_BYTE(getVPHP(addr)); }
-    
+
     u16 getVMHM() const;
     u16 getVMHM(u32 addr) const;
     u16 getVM() const { return HI_BYTE(getVMHM()); }
     u16 getVM(u32 addr) { return HI_BYTE(getVMHM(addr)); }
     u16 getHM() const { return LO_BYTE(getVMHM()); }
     u16 getHM(u32 addr) { return LO_BYTE(getVMHM(addr)); }
-    
+
 public:
-    
+
     // Returns true if the Copper has no access to this custom register
     bool isIllegalAddress(u32 addr) const;
-    
+
     // Returns true if the Copper instruction at addr is illegal
     bool isIllegalInstr(u32 addr) const;
-    
+
 
     //
     // Managing events
     //
-    
+
 public:
-    
+
     // Processes a Copper event
     void serviceEvent();
     void serviceEvent(EventID id);
@@ -331,10 +331,10 @@ public:
     void reschedule(int delay = 1);
 
 private:
-    
+
     // Executed after each frame
     void eofHandler();
-    
+
 
     //
     // Handling delegation calls

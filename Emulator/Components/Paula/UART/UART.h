@@ -31,7 +31,7 @@ class UART final : public SubComponent, public Inspectable<UARTInfo> {
     };
 
     friend class SerServer;
-    
+
     // Port period and control register
     u16 serper;
 
@@ -61,9 +61,9 @@ class UART final : public SubComponent, public Inspectable<UARTInfo> {
     //
 
 public:
-    
+
     using SubComponent::SubComponent;
-    
+
     UART& operator= (const UART& other) {
 
         CLONE(serper)
@@ -99,7 +99,7 @@ private:
         << ovrun
         << recCnt;
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
 
     //
@@ -111,7 +111,7 @@ public:
     const Descriptions &getDescriptions() const override { return descriptions; }
 
 private:
-    
+
     void _dump(Category category, std::ostream& os) const override;
     void _didReset(bool hard) override;
 
@@ -133,13 +133,13 @@ public:
 
     void cacheInfo(UARTInfo &result) const override;
 
-    
+
     //
     // Accessing
     //
 
 public:
-    
+
     // Serial port data and status read
     u16 peekSERDATR();
     u16 spypeekSERDATR() const;
@@ -157,7 +157,7 @@ public:
 
     // Returns the baud rate
     isize baudRate() const { return CLK_FREQUENCY_PAL / (isize)pulseWidth(); }
-    
+
 private:
 
     // Returns the length of a received packet (8 or 9 bits)

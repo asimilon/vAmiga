@@ -23,8 +23,8 @@ Paula::Paula(Amiga& ref) : SubComponent(ref)
         &channel1,
         &channel2,
         &channel3,
-        &diskController,
-        &uart
+        &paulaDiskController,
+        &paulaUart
     };
 }
 

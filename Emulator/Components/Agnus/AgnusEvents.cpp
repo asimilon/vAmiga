@@ -205,12 +205,12 @@ Agnus::serviceREGEvent(Cycle until)
 
         switch (change.addr) {
 
-            case SET_BLTSIZE: blitter.setBLTSIZE(change.value); break;
-            case SET_BLTSIZV: blitter.setBLTSIZV(change.value); break;
+            case SET_BLTSIZE: agnusBlitter.setBLTSIZE(change.value); break;
+            case SET_BLTSIZV: agnusBlitter.setBLTSIZV(change.value); break;
                 
-            case SET_BLTCON0: blitter.setBLTCON0(change.value); break;
-            case SET_BLTCON0L: blitter.setBLTCON0L(change.value); break;
-            case SET_BLTCON1: blitter.setBLTCON1(change.value); break;
+            case SET_BLTCON0: agnusBlitter.setBLTCON0(change.value); break;
+            case SET_BLTCON0L: agnusBlitter.setBLTCON0L(change.value); break;
+            case SET_BLTCON1: agnusBlitter.setBLTCON1(change.value); break;
                 
             case SET_INTREQ: paula.setINTREQ(change.value); break;
             case SET_INTENA: paula.setINTENA(change.value); break;
@@ -585,7 +585,7 @@ Agnus::serviceDASEvent(EventID id)
         case DAS_D1:
         case DAS_D2:
 
-            paula.diskController.performDMA();
+            paula.paulaDiskController.performDMA();
             break;
 
         case DAS_A0:
@@ -758,8 +758,8 @@ Agnus::serviceINSEvent()
     // Analyze bit mask
     if (mask & 1LL << AgnusClass)           { agnus.record(); }
     if (mask & 1LL << AmigaClass)           { amiga.record(); }
-    if (mask & 1LL << BlitterClass)         { blitter.record(); }
-    if (mask & 1LL << CopperClass)          { copper.record(); }
+    if (mask & 1LL << BlitterClass)         { agnusBlitter.record(); }
+    if (mask & 1LL << CopperClass)          { agnusCopper.record(); }
     if (mask & 1LL << CIAClass)             { ciaa.record(); ciab.record(); }
     if (mask & 1LL << CPUClass)             { cpu.record(); }
     if (mask & 1LL << DeniseClass)          { denise.record(); }

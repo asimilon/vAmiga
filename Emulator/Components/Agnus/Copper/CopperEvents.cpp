@@ -71,7 +71,7 @@ Copper::serviceEvent(EventID id)
             trace(COP_DEBUG, "COP_WAKEUP_BLIT\n");
             
             // Check if the Blitter is busy, keep on waiting
-            if (agnus.blitter.isActive()) {
+            if (agnus.agnusBlitter.isActive()) {
                 agnus.scheduleAbs<SLOT_COP>(NEVER, COP_WAIT_BLIT);
                 break;
             }
@@ -99,7 +99,7 @@ Copper::serviceEvent(EventID id)
                 skip = runComparator();
 
                 // If the BFD flag is cleared, we also need to check the Blitter
-                if (!getBFD()) skip &= !agnus.blitter.isActive();
+                if (!getBFD()) skip &= !agnus.agnusBlitter.isActive();
             }
 
             // Remember the program counter (picked up by the debugger)
@@ -205,7 +205,7 @@ Copper::serviceEvent(EventID id)
             skip = false;
             
             // Check if we need to wait for the Blitter
-            if (!getBFD() && agnus.blitter.isActive()) {
+            if (!getBFD() && agnus.agnusBlitter.isActive()) {
                 agnus.scheduleAbs<SLOT_COP>(NEVER, COP_WAIT_BLIT);
                 break;
             }

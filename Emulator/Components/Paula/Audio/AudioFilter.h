@@ -62,7 +62,7 @@ struct OnePoleFilter : CoreObject {
     double tmpR;
 
     const char *objectName() const override { return "OnePoleFilter"; }
-    void _dump(Category category, std::ostream& os) const override { };
+    void _dump(Category /*category*/, std::ostream& /*os*/) const override { }
 
     // Initializes the filter coeeficients
     void setup(double sampleRate, double R1, double C1);
@@ -93,7 +93,7 @@ struct TwoPoleFilter : CoreObject {
     double tmpR[4];
 
     const char *objectName() const override { return "TwoPoleFilter"; }
-    void _dump(Category category, std::ostream& os) const override { };
+    void _dump(Category /*category*/, std::ostream& /*os*/) const override { }
 
     // Initializes the filter coeeficients
     void setup(double sampleRate, double R1, double R2, double C1, double C2);
@@ -108,7 +108,7 @@ struct TwoPoleFilter : CoreObject {
 
 
 class AudioFilter final : public SubComponent {
-    
+
     friend class AudioPort;
 
     Descriptions descriptions = {
@@ -153,25 +153,25 @@ private:
     //
     // Initializing
     //
-    
+
 public:
-    
+
     AudioFilter(Amiga& amiga, AudioPort& port);
 
     AudioFilter& operator= (const AudioFilter& other) {
 
         CLONE(config)
-        
+
         return *this;
     }
 
-    
+
     //
     // Methods from Serializable
     //
-    
+
 private:
-        
+
     template <class T>
     void serialize(T& worker)
     {
@@ -181,8 +181,8 @@ private:
 
         << config.filterType;
 
-    } SERIALIZERS(serialize);
-    
+    } SERIALIZERS(serialize)
+
 public:
 
     const Descriptions &getDescriptions() const override { return descriptions; }
@@ -195,7 +195,7 @@ public:
 private:
 
     void _dump(Category category, std::ostream& os) const override;
-    
+
 
     //
     // Methods from Configurable
@@ -217,7 +217,7 @@ private:
     void setupLedFilter(double sampleRate);
     void setupHiFilter(double sampleRate);
 
-    
+
     //
     // Querying
     //
@@ -232,7 +232,7 @@ private:
     //
 
 public:
-    
+
     // Initializes the filter pipeline with zero elements
     void clear();
 };

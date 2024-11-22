@@ -30,7 +30,7 @@ public:
     class Emulator *emu = nullptr;
 
     API() { }
-    API(Emulator *emu) : emu(emu) { }
+    API(Emulator *_emu) : emu(_emu) { }
 
     void suspend();
     void resume();
@@ -495,7 +495,7 @@ struct AudioChannelAPI : public API {
     class Paula *paula = nullptr;
     isize channel = 0;
 
-    AudioChannelAPI(isize channel) : API(), channel(channel) { }
+    AudioChannelAPI(isize _channel) : API(), channel(_channel) { }
 
     /** @brief  Returns the component's current state.
      */
@@ -1067,7 +1067,7 @@ struct DefaultsAPI : public API {
 
     class Defaults *defaults = nullptr;
 
-    DefaultsAPI(Defaults *defaults) : defaults(defaults) { }
+    DefaultsAPI(Defaults *_defaults) : defaults(_defaults) { }
 
     ///
     /// @{
@@ -1477,7 +1477,7 @@ public:
      */
     static string build();
 
-    
+
     //
     // Initializing
     //
@@ -1629,7 +1629,7 @@ public:
      */
     void trackOff(isize source = 0);
 
-    
+
     /// @}
     /// @name Single-stepping
     /// @{

@@ -42,10 +42,10 @@ Moira::writeStackFrame0000(u16 sr, u32 pc, u16 nr)
                 // write<C, MEM_DATA, Word>((reg.sp + 4) & ~1, pc & 0xFFFF);
                 // write<C, MEM_DATA, Word>((reg.sp + 0) & ~1, sr);
                 // write<C, MEM_DATA, Word>((reg.sp + 2) & ~1, pc >> 16);
-                U32_DEC(reg.sp, 6);
-                write<C, MEM_DATA, Word>(U32_ADD(reg.sp, 4) & ~1, pc & 0xFFFF);
-                write<C, MEM_DATA, Word>(U32_ADD(reg.sp, 0) & ~1, sr);
-                write<C, MEM_DATA, Word>(U32_ADD(reg.sp, 2) & ~1, pc >> 16);
+                U32_DEC(reg.stackPointer.sp, 6);
+                write<C, MEM_DATA, Word>(U32_ADD(reg.stackPointer.sp, 4) & ~1, pc & 0xFFFF);
+                write<C, MEM_DATA, Word>(U32_ADD(reg.stackPointer.sp, 0) & ~1, sr);
+                write<C, MEM_DATA, Word>(U32_ADD(reg.stackPointer.sp, 2) & ~1, pc >> 16);
             }
             break;
 
@@ -65,11 +65,11 @@ Moira::writeStackFrame0000(u16 sr, u32 pc, u16 nr)
                 // write<C, MEM_DATA, Word>((reg.sp + 4) & ~1, pc & 0xFFFF);
                 // write<C, MEM_DATA, Word>((reg.sp + 0) & ~1, sr);
                 // write<C, MEM_DATA, Word>((reg.sp + 2) & ~1, pc >> 16);
-                U32_DEC(reg.sp, 8);
-                write<C, MEM_DATA, Word>(U32_ADD(reg.sp, 6) & ~1, 4 * nr);
-                write<C, MEM_DATA, Word>(U32_ADD(reg.sp, 4) & ~1, pc & 0xFFFF);
-                write<C, MEM_DATA, Word>(U32_ADD(reg.sp, 0) & ~1, sr);
-                write<C, MEM_DATA, Word>(U32_ADD(reg.sp, 2) & ~1, pc >> 16);
+                U32_DEC(reg.stackPointer.sp, 8);
+                write<C, MEM_DATA, Word>(U32_ADD(reg.stackPointer.sp, 6) & ~1, 4 * nr);
+                write<C, MEM_DATA, Word>(U32_ADD(reg.stackPointer.sp, 4) & ~1, pc & 0xFFFF);
+                write<C, MEM_DATA, Word>(U32_ADD(reg.stackPointer.sp, 0) & ~1, sr);
+                write<C, MEM_DATA, Word>(U32_ADD(reg.stackPointer.sp, 2) & ~1, pc >> 16);
             }
             break;
     }
@@ -127,19 +127,19 @@ Moira::writeStackFrame1000(StackFrame &frame, u16 sr, u32 pc, u32 ia, u16 nr, u3
     push<C, Word>(queue.irc);
 
     // Unused, reserved
-    reg.sp -= 2;
+    reg.stackPointer.sp -= 2;
 
     // Data input buffer
     push<C, Word>(readBuffer);
 
     // Unused, reserved
-    reg.sp -= 2;
+    reg.stackPointer.sp -= 2;
 
     // Data output buffer
     push<C, Word>(writeBuffer);
 
     // Unused, reserved
-    reg.sp -= 2;
+    reg.stackPointer.sp -= 2;
 
     // Fault address
     push<C, Long>(frame.addr);
@@ -288,7 +288,7 @@ Moira::execAddressError(StackFrame frame, int delay)
     SYNC(8);
 
     // A misaligned stack pointer will cause a double fault
-    if (misaligned<C>(reg.sp)) throw DoubleFault();
+    if (misaligned<C>(reg.stackPointer.sp)) throw DoubleFault();
 
     // Write stack frame
     if (C == C68000) {
@@ -504,26 +504,26 @@ Moira::execInterrupt(u8 level)
         case C68000:
 
             SYNC(6);
-            reg.sp -= 6;
-            write<C, MEM_DATA, Word>(reg.sp + 4, reg.pc & 0xFFFF);
+            reg.stackPointer.sp -= 6;
+            write<C, MEM_DATA, Word>(reg.stackPointer.sp + 4, reg.pc & 0xFFFF);
 
             SYNC(4);
             queue.ird = getIrqVector(level);
 
             SYNC(4);
-            write<C, MEM_DATA, Word>(reg.sp + 0, status);
-            write<C, MEM_DATA, Word>(reg.sp + 2, reg.pc >> 16);
+            write<C, MEM_DATA, Word>(reg.stackPointer.sp + 0, status);
+            write<C, MEM_DATA, Word>(reg.stackPointer.sp + 2, reg.pc >> 16);
             break;
 
         case C68010:
 
             SYNC(12);
-            reg.sp -= 8;
+            reg.stackPointer.sp -= 8;
             queue.ird = getIrqVector(level);
-            write<C, MEM_DATA, Word>(reg.sp + 4, reg.pc & 0xFFFF);
-            write<C, MEM_DATA, Word>(reg.sp + 0, status);
-            write<C, MEM_DATA, Word>(reg.sp + 2, reg.pc >> 16);
-            write<C, MEM_DATA, Word>(reg.sp + 6, 4 * queue.ird);
+            write<C, MEM_DATA, Word>(reg.stackPointer.sp + 4, reg.pc & 0xFFFF);
+            write<C, MEM_DATA, Word>(reg.stackPointer.sp + 0, status);
+            write<C, MEM_DATA, Word>(reg.stackPointer.sp + 2, reg.pc >> 16);
+            write<C, MEM_DATA, Word>(reg.stackPointer.sp + 6, 4 * queue.ird);
             break;
 
         case C68020:

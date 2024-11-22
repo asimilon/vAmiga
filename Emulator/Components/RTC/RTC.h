@@ -28,7 +28,7 @@ class RTC final : public SubComponent {
 
         OPT_RTC_MODEL
     };
-    
+
     // The current configuration
     RTCConfig config = {};
 
@@ -41,10 +41,10 @@ class RTC final : public SubComponent {
      * clock is identical to the one in the host machine.
      */
     i64 timeDiff;
-    
+
     // The RTC registers
     u8 reg[4][16];
-    
+
     // Time stamp of the last call to function getTime()
     Cycle lastCall;
 
@@ -53,18 +53,18 @@ class RTC final : public SubComponent {
 
     // The result of the most recent query
     i64 lastMeasuredValue;
-    
-    
+
+
     //
     // Methods
     //
 
 public:
-    
+
     using SubComponent::SubComponent;
-    
+
     RTC& operator= (const RTC& other) {
-        
+
         CLONE(timeDiff)
         CLONE_ARRAY(reg[0])
         CLONE_ARRAY(reg[1])
@@ -85,7 +85,7 @@ public:
     //
 
 private:
-        
+
     template <class T>
     void serialize(T& worker)
     {
@@ -131,47 +131,47 @@ private:
     //
 
 public:
-    
+
     const RTCConfig &getConfig() const { return config; }
     const ConfigOptions &getOptions() const override { return options; }
     i64 getOption(Option option) const override;
     void checkOption(Option opt, i64 value) override;
     void setOption(Option option, i64 value) override;
 
-    
+
     //
     // Accessing time
     //
-    
+
     // Returns the current value of the real-time clock
     time_t getTime();
-    
+
     // Sets the current value of the real-time clock
     void setTime(time_t t);
-    
-    
+
+
     //
     // Accessing registers
     //
-    
+
 public:
-    
+
     // Updates all 16 RTC registers
     void update();
-    
+
     // Reads one of the 16 RTC registers (call update() first)
     u8 peek(isize nr);
 
     // Returns the current value in the register cache
     u8 spypeek(isize nr) const;
-    
+
     // Writes one of the 16 RTC registers
     void poke(isize nr, u8 value);
 
 private:
 
     // Reads one of the three control registers
-    u8 peekD() const { return reg[0][0xD]; };
+    u8 peekD() const { return reg[0][0xD]; }
     u8 peekE() const { return config.model == RTC_RICOH ? 0 : reg[0][0xE]; }
     u8 peekF() const { return config.model == RTC_RICOH ? 0 : reg[0][0xF]; }
 
@@ -185,7 +185,7 @@ private:
      * register D. The OKI clock has a single bank, only.
      */
     isize bank() const { return config.model == RTC_RICOH ? (reg[0][0xD] & 0b11) : 0; }
-    
+
     /* Converts the register value to the internally stored time-stamp. This
      * function has to be called *before* a RTC register is *read*.
      */

@@ -74,10 +74,10 @@ class FloppyDrive final : public Drive, public Inspectable<FloppyDriveInfo> {
 
     // Drive motor status (on or off)
     bool motor;
-    
+
     // Time stamp indicating the latest change of the motor status
     Cycle switchCycle;
-    
+
     // Recorded motor speed at 'switchCycle' in percent
     double switchSpeed;
 
@@ -100,10 +100,10 @@ class FloppyDrive final : public Drive, public Inspectable<FloppyDriveInfo> {
      * It becomes true when a disk is ejected.
      */
     bool dskchange;
-    
+
     // A copy of the DSKLEN register
     u8 dsklen;
-    
+
     // A copy of the PRB register of CIA B
     u8 prb;
 
@@ -114,7 +114,7 @@ class FloppyDrive final : public Drive, public Inspectable<FloppyDriveInfo> {
     u64 cylinderHistory;
 
 public:
-    
+
     // The currently inserted disk (if any)
     std::unique_ptr<FloppyDisk> disk;
 
@@ -122,11 +122,11 @@ private:
 
     // A disk waiting to be inserted (if any)
     std::unique_ptr<FloppyDisk> diskToInsert;
-    
+
     // Search path for disk files, one for each drive
     std::filesystem::path searchPath;
 
-    
+
     //
     // Initializing
     //
@@ -141,20 +141,20 @@ public:
     //
     // Methods from CoreObject
     //
-    
+
 private:
-    
+
     void _dump(Category category, std::ostream& os) const override;
-    
-    
+
+
     //
     // Methods from CoreComponent
     //
-    
+
 private:
-    
+
     void _initialize() override;
-    
+
     template <class T>
     void serialize(T& worker)
     {
@@ -189,14 +189,14 @@ private:
         << config.rpm;
     }
 
-    void operator << (SerResetter &worker) override { serialize(worker); };
+    void operator << (SerResetter &worker) override { serialize(worker); }
     void operator << (SerChecker &worker) override;
     void operator << (SerCounter &worker) override;
     void operator << (SerReader &worker) override;
     void operator << (SerWriter &worker) override;
 
     void _didReset(bool hard) override;
-    
+
 public:
 
     const Descriptions &getDescriptions() const override { return descriptions; }
@@ -205,11 +205,11 @@ public:
     //
     // Methods from Drive
     //
-    
+
 public:
-    
+
     bool isConnected() const override;
-    
+
     Cylinder currentCyl() const override { return head.cylinder; }
     Head currentHead() const override { return head.head; }
     isize currentOffset() const override { return head.offset; }
@@ -224,19 +224,19 @@ public:
     void setModificationFlag(bool value) override;
     void setProtectionFlag(bool value) override;
 
-    
+
     //
     // Methods from Configurable
     //
 
 public:
-    
+
     const FloppyDriveConfig &getConfig() const { return config; }
     const ConfigOptions &getOptions() const override { return options; }
     i64 getOption(Option option) const override;
     void checkOption(Option opt, i64 value) override;
     void setOption(Option option, i64 value) override;
-    
+
     const std::filesystem::path &getSearchPath() const { return searchPath; }
     void setSearchPath(const std::filesystem::path &path) { searchPath = path; }
 
@@ -246,7 +246,7 @@ public:
     //
 
 public:
-    
+
     // Returns the result of the latest inspection
     void cacheInfo(FloppyDriveInfo &info) const override;
 
@@ -284,19 +284,19 @@ public:
     //
     // Handling the drive status register flags
     //
-    
+
     // Returns true if the drive is currently selected
     bool isSelected() const { return (prb & (0b1000 << objid)) == 0; }
-    
+
     u8 driveStatusFlags() const;
-    
+
 
     //
     // Operating the drive motor
     //
 
 public:
-    
+
     // Returns the current motor speed in percent
     double motorSpeed() const;
 
@@ -312,7 +312,7 @@ public:
     bool motorSlowingDown() const;
     bool motorStopped() const;
 
-    
+
     //
     // Accessing data
     //
@@ -336,13 +336,13 @@ public:
     // Rotates the disk to the next sync mark
     void findSyncMark();
 
-    
+
     //
     // Moving the drive head
     //
 
 public:
-    
+
     // Returns wheather the drive is ready to accept a stepping pulse
     bool readyToStepUp() const;
     bool readyToStepDown() const;
@@ -386,30 +386,30 @@ public:
     void insertNew(FSVolumeType fs, BootBlockId bb, string name) throws;
 
 private:
-    
+
     template <EventSlot s> void ejectDisk(Cycle delay);
     template <EventSlot s> void insertDisk(std::unique_ptr<FloppyDisk> disk, Cycle delay) throws;
 
-    
+
     //
     // Handling files
     //
 
 public:
-    
+
     // Sets a catchpoint on the specified file
     void catchFile(const std::filesystem::path &path) throws;
-    
-    
+
+
     //
     // Processing events and commands
     //
-    
+
 public:
-    
+
     // Services an event in the disk change slot
     template <EventSlot s> void serviceDiskChangeEvent();
-    
+
     // Processes a command from the command queue
     void processCommand(const Cmd &cmd);
 
@@ -417,9 +417,9 @@ public:
     //
     // Delegation methods
     //
-    
+
 public:
-    
+
     // Write handler for the PRB register of CIA B
     void PRBdidChange(u8 oldValue, u8 newValue);
 

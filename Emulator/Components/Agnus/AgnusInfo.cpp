@@ -633,19 +633,19 @@ Agnus::cacheInfo(AgnusInfo &info) const
     
     info.bpl1mod  = bpl1mod;
     info.bpl2mod  = bpl2mod;
-    info.bltamod  = blitter.bltamod;
-    info.bltbmod  = blitter.bltbmod;
-    info.bltcmod  = blitter.bltcmod;
-    info.bltdmod  = blitter.bltdmod;
-    info.bltcon0  = blitter.bltcon0;
+    info.bltamod  = agnusBlitter.bltamod;
+    info.bltbmod  = agnusBlitter.bltbmod;
+    info.bltcmod  = agnusBlitter.bltcmod;
+    info.bltdmod  = agnusBlitter.bltdmod;
+    info.bltcon0  = agnusBlitter.bltcon0;
     info.bls      = bls;
     
-    info.coppc0   = copper.coppc0 & ptrMask;
+    info.coppc0   = agnusCopper.coppc0 & ptrMask;
     info.dskpt    = dskpt & ptrMask;
-    info.bltpt[0] = blitter.bltapt & ptrMask;
-    info.bltpt[1] = blitter.bltbpt & ptrMask;
-    info.bltpt[2] = blitter.bltcpt & ptrMask;
-    info.bltpt[3] = blitter.bltdpt & ptrMask;
+    info.bltpt[0] = agnusBlitter.bltapt & ptrMask;
+    info.bltpt[1] = agnusBlitter.bltbpt & ptrMask;
+    info.bltpt[2] = agnusBlitter.bltcpt & ptrMask;
+    info.bltpt[3] = agnusBlitter.bltdpt & ptrMask;
     for (isize i = 0; i < 6; i++) info.bplpt[i] = bplpt[i] & ptrMask;
     for (isize i = 0; i < 4; i++) info.audpt[i] = audpt[i] & ptrMask;
     for (isize i = 0; i < 4; i++) info.audlc[i] = audlc[i] & ptrMask;

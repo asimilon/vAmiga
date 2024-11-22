@@ -62,7 +62,7 @@ private:
     // Mutex for synchronizing access to the stable buffer
     util::Mutex bufferMutex;
 
-    
+
     //
     // Color management
     //
@@ -82,12 +82,12 @@ private:
      */
     static const int paletteCnt = 32 + 32 + 1 + 3;
     Texel palette[paletteCnt];
-    
+
     // Indicates whether HAM mode or SHRES mode is enabled
     bool hamMode;
     bool shresMode;
 
-    
+
     //
     // Register change history buffer
     //
@@ -101,9 +101,9 @@ public:
     //
     // Initializing
     //
-    
+
 public:
-    
+
     using SubComponent::SubComponent;
 
     // Initializes both frame buffers with a checkerboard pattern
@@ -138,13 +138,13 @@ private:
         << hamMode
         << shresMode;
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
 
     //
     // Methods from CoreComponent
     //
-    
+
 public:
 
     const Descriptions &getDescriptions() const override { return descriptions; }
@@ -157,13 +157,13 @@ private:
     void _didLoad() override;
     void _didReset(bool hard) override;
 
-    
+
     //
     // Methods from Configurable
     //
 
 public:
-    
+
     const PixelEngineConfig &getConfig() const { return config; }
     const ConfigOptions &getOptions() const override { return options; }
     i64 getOption(Option option) const override;
@@ -179,7 +179,7 @@ public:
 
     // Performs a consistency check for debugging
     static bool isPaletteIndex(isize nr) { return nr < paletteCnt; }
-    
+
     // Changes one of the 32 Amiga color registers
     void setColor(isize reg, u16 value);
     void setColor(isize reg, AmigaColor value);
@@ -217,10 +217,10 @@ public:
     // Return a pointer into the pixel storage
     Texel *workingPtr(isize row = 0, isize col = 0);
     Texel *stablePtr(isize row = 0, isize col = 0);
-    
+
     // Swaps the working buffer and the stable buffer
     void swapBuffers();
-    
+
     // Called after each frame to switch the frame buffers
     void vsyncHandler();
 
@@ -245,25 +245,25 @@ public:
     //
 
 public:
-    
+
     /* Colorizes a rasterline. This function implements the last stage in the
      * graphics pipelile. It translates a line of color register indices into a
      * line of RGBA values in GPU format.
      */
     void colorize(isize line);
-    
+
 private:
-    
+
     void colorize(Texel *dst, Pixel from, Pixel to);
     void colorizeSHRES(Texel *dst, Pixel from, Pixel to);
     void colorizeHAM(Texel *dst, Pixel from, Pixel to, AmigaColor& ham);
-    
+
     /* Hides some graphics layers. This function is an optional stage applied
      * after colorize(). It can be used to hide some layers for debugging.
      */
-    
+
 public:
-    
+
     void hide(isize line, u16 layer, u8 alpha);
 };
 

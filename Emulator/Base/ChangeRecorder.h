@@ -48,10 +48,10 @@ enum RegChangeID : i32
     SET_BLTCON0,
     SET_BLTCON0L,
     SET_BLTCON1,
-    
+
     SET_INTREQ,
     SET_INTENA,
-    
+
     SET_BPLCON0_AGNUS,
     SET_BPLCON0_DENISE,
     SET_BPLCON1_AGNUS,
@@ -59,7 +59,7 @@ enum RegChangeID : i32
     SET_BPLCON2,
     SET_BPLCON3,
     SET_DMACON,
-    
+
     SET_DIWSTRT_AGNUS,
     SET_DIWSTRT_DENISE,
     SET_DIWSTOP_AGNUS,
@@ -68,10 +68,10 @@ enum RegChangeID : i32
     SET_DIWHIGH_DENISE,
     SET_DDFSTRT,
     SET_DDFSTOP,
-    
+
     SET_BPL1MOD,
     SET_BPL2MOD,
-    
+
     SET_SPR0DATA,
     SET_SPR1DATA,
     SET_SPR2DATA,
@@ -114,14 +114,14 @@ enum RegChangeID : i32
     SET_BPL4PTH,
     SET_BPL5PTH,
     SET_BPL6PTH,
-    
+
     SET_BPL1PTL,
     SET_BPL2PTL,
     SET_BPL3PTL,
     SET_BPL4PTL,
     SET_BPL5PTL,
     SET_BPL6PTL,
-    
+
     SET_SPR0PTH,
     SET_SPR1PTH,
     SET_SPR2PTH,
@@ -168,7 +168,7 @@ public:
         << value
         << accessor;
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
 
     RegChange() : addr(0), value(0), accessor(0) { }
@@ -206,7 +206,7 @@ struct RegChangeRecorder : public util::SortedRingBuffer<RegChange, capacity>
 struct SigRecorder : public util::SortedArray<u32, 256>
 {
     bool modified = false;
-    
+
     SigRecorder& operator= (const SigRecorder& other) {
 
         SortedArray::operator = (other);
@@ -218,7 +218,7 @@ struct SigRecorder : public util::SortedArray<u32, 256>
     void insert(i64 key, u32 signal) {
 
         modified = true;
-        
+
         for (isize i = 0; i < w; i++) {
 
             if (keys[i] == key) {
@@ -226,16 +226,16 @@ struct SigRecorder : public util::SortedArray<u32, 256>
                 return;
             }
         }
-        
+
         SortedArray::insert(key, signal);
     }
-    
+
     void invalidate(i64 key, u32 signal) {
-        
+
         modified = true;
-        
+
         for (isize i = 0; i < w; i++) {
-            
+
             if ((elements[i] & signal) && keys[i] >= key) {
                 elements[i] &= ~signal;
             }

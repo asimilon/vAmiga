@@ -31,26 +31,26 @@ class RemoteManager final : public SubComponent, public Inspectable<RemoteManage
     };
 
 public:
-    
+
     // The remote servers
     SerServer serServer = SerServer(amiga, SERVER_SER);
     RshServer rshServer = RshServer(amiga, SERVER_RSH);
     GdbServer gdbServer = GdbServer(amiga, SERVER_GDB);
-    
+
     // Convenience wrapper
     std::vector <RemoteServer *> servers = {
         &serServer, &rshServer, &gdbServer
     };
 
-    
+
     //
     // Initializing
     //
-    
+
 public:
-    
+
     RemoteManager(Amiga& ref);
-    
+
     RemoteManager& operator= (const RemoteManager& other) {
 
         CLONE(serServer)
@@ -64,20 +64,20 @@ public:
     //
     // Methods from CoreObject
     //
-    
+
 protected:
-    
+
     void _dump(Category category, std::ostream& os) const override;
-    
-    
+
+
     //
     // Methods from CoreComponent
     //
-    
+
 private:
-    
-    template <class T> void serialize(T& worker) { } SERIALIZERS(serialize);
-        
+
+    template <class T> void serialize(T& /*worker*/) { } SERIALIZERS(serialize)
+
 public:
 
     const Descriptions &getDescriptions() const override { return descriptions; }
@@ -104,9 +104,9 @@ public:
     //
     // Managing connections
     //
-    
+
 public:
-    
+
     // Returns the number of servers being in a certain state
     isize numLaunching() const;
     isize numListening() const;
@@ -117,9 +117,9 @@ public:
     //
     // Servicing events
     //
-    
+
 public:
-    
+
     void serviceServerEvent();
 };
 

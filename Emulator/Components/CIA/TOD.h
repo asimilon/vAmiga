@@ -14,14 +14,16 @@
 
 namespace vamiga {
 
+struct TODParts
+{
+    u8 lo;
+    u8 mid;
+    u8 hi;
+};
+
 typedef union
 {
-    struct
-    {
-        u8 lo;
-        u8 mid;
-        u8 hi;
-    };
+    TODParts parts;
     u32 value;
 }
 Counter24;
@@ -47,38 +49,38 @@ class TOD final : public SubComponent, public Inspectable<TODInfo> {
 
     // The 24 bit counter
     Counter24 tod;
-    
+
     // Counter value before the latest increment
     Counter24 preTod;
-    
+
     // Time stamp of the last increment
     Cycle lastInc;
 
     // The counter latch
     Counter24 latch;
-    
+
     // Alarm value
     Counter24 alarm;
-    
+
     /* Indicates if the TOD registers are frozen. The CIA chip freezes the
      * registers when the counter's high byte (bits 16 - 23) is read and
      * reactivates them, when the low byte (bits 0 - 7) is read. Although the
      * values stay constant, the internal clock continues to run.
      */
     bool frozen;
-    
+
     /* Indicates if the TOD clock is halted. The CIA chip stops the TOD clock
      * when the counter's high byte (bits 16 - 23) is written and restarts it,
      * when the low byte (bits 0 - 7) is written.
      */
     bool stopped;
-    
+
     /* Indicates if tod time matches the alarm value. This value is read in
      * checkIrq() for edge detection.
      */
     bool matching;
-    
-    
+
+
     //
     // Initializing
     //
@@ -134,13 +136,13 @@ private:
     //
     // Methods from CoreComponent
     //
-    
+
 public:
 
     const Descriptions &getDescriptions() const override { return descriptions; }
 
 private:
-    
+
     void _dump(Category category, std::ostream& os) const override;
 
 
@@ -165,13 +167,13 @@ public:
     //
     // Accessing
     //
-    
+
     // Returns the counter's high byte (bits 16 - 23).
     u8 getCounterHi(Cycle timeStamp = INT64_MAX) const;
 
     // Returns the counter's intermediate byte (bits 8 - 15).
     u8 getCounterMid(Cycle timeStamp = INT64_MAX) const;
-    
+
     // Returns the counter's low byte (bits 0 - 7).
     u8 getCounterLo(Cycle timeStamp = INT64_MAX) const;
 
@@ -208,10 +210,10 @@ public:
     //
 
 public:
-    
+
     // Increments the counter
     void increment();
-    
+
 private:
 
     bool incLoNibble(u8 &counter);
@@ -222,13 +224,13 @@ private:
 
     // Freezes the counter
     void freeze() { if (!frozen) { latch.value = tod.value; frozen = true; } }
-    
+
     // Unfreezes the counter
     void defreeze() { frozen = false; }
-    
+
     // Stops the counter
     void stop() { stopped = true; }
-    
+
     // Starts the counter
     void cont() { stopped = false; }
 };

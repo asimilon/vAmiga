@@ -48,7 +48,7 @@ class VideoPort final : public SubComponent, public Inspectable<VideoPortInfo, V
 public:
 
     VideoPort(Amiga &ref);
-    ~VideoPort();
+    ~VideoPort() override;
 
     VideoPort& operator= (const VideoPort& other) {
 
@@ -75,7 +75,7 @@ public:
 
         << config.whiteNoise;
 
-    } SERIALIZERS(serialize);
+    } SERIALIZERS(serialize)
 
 
     //

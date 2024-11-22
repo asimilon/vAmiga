@@ -16,7 +16,7 @@ namespace vamiga {
 
 typedef std::vector<Option> ConfigOptions;
 
-class Configurable 
+class Configurable
 {
 
 public:
@@ -30,18 +30,18 @@ public:
     bool isValidOption(Option opt) const;
 
     // Gets a config option
-    virtual i64 getOption(Option opt) const { return 0; }
+    virtual i64 getOption(Option /*opt*/) const { return 0; }
 
     // Gets the fallback for a config option
     virtual i64 getFallback(Option opt) const = 0;
 
     // Throws an exception of if the given option/value pair is invalid
-    virtual void checkOption(Option opt, i64 value) { }
+    virtual void checkOption(Option /*opt*/, i64 /*value*/) { }
     void checkOption(Option opt, const string &value);
     void checkOption(const string &opt, const string &value);
 
     // Sets a config option
-    virtual void setOption(Option opt, i64 value) { }
+    virtual void setOption(Option /*opt*/, i64 /*value*/) { }
     void setOption(Option opt, const string &value);
     void setOption(const string &opt, const string &value);
 
